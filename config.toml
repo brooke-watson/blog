@@ -6,11 +6,12 @@ theme = "hugo-theme-cactus-plus"
 googleAnalytics = ""
 # Set the value to true if your site include CJK (Chinese, Japanese, and Korean languages) characters
 hasCJKLanguage = false
+contentdir = "content"
 
 [params]
 	author = "Brooke Watson"
-	description = "Research Scientist @EcoHealthAlliance, R Lady @RLadiesNYC"
-	bio = "Research Scientist"
+	description = "Research Scientist [@EcoHealthAlliance](http://www.ecohealthalliance.org)"
+	bio = "America's Next Top Modeller [@EcoHealthAlliance](https://www.ecohealthalliance.org/personnel/brooke-watson-2). Organizer and R Lady [@RLadiesNYC](http://www.rladiesnyc.org). Internet ambassador and noted meme sommelier."
 
 	twitter = "brooklynevery1"
 
@@ -25,7 +26,7 @@ hasCJKLanguage = false
 	useDescriptionReplaceSummary = true
 
 
-	enableGoogleAnalytics = true
+	enableGoogleAnalytics = false
 	enableBaiduAnalytics = false
 	# Set the value to your baidu analysis code if you want to use baidu analytics
 	baiduAnalytics = 'your_baidu_analysis_code'
@@ -65,12 +66,12 @@ hasCJKLanguage = false
 	subtitle404 = ""
 
 	# Choose a font for the social icons in the footer. Either "mono-social" or "font-awesome"
-	iconFont = "font-awesome"
+	iconFont = "mono-social"
   # The social icons can be styled differently if you use mono as font - circle, rounded, or empty
-  socialIconStyle = ""
+  socialIconStyle = "circle"
 
 
 # Add additional social link entries underneath
-[social]
-	twitter-square = "https://www.twitter.com/brooklynevery1"
-	github-square = "https://www.github.com/brooke-watson"
+[social]  
+	twitter = "https://www.twitter.com/brooklynevery1"
+	github = "https://www.github.com/brooke-watson"
