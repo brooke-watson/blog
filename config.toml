@@ -18,8 +18,8 @@ contentdir = "content"
 	enableRSS = true
 	enableToc = true
 
-	enableDisqus = false
-	disqusShortname = "your_disqus_short_name"
+	enableDisqus = true
+	disqusShortname = "brooklyneveryone"
 
 	enableSummary = true
 	# Set the value to true if use description in post front matter replace content summary
