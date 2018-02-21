@@ -3,14 +3,14 @@ baseurl = "/"
 languageCode = "en"
 title = "Brooke Watson"
 theme = "hugo-theme-cactus-plus"
-googleAnalytics = ""
+googleAnalytics = "UA-47082548-2"
 # Set the value to true if your site include CJK (Chinese, Japanese, and Korean languages) characters
 hasCJKLanguage = false
 contentdir = "content"
 
 [params]
 	author = "Brooke Watson"
-	description = "Research Scientist [@EcoHealthAlliance](http://www.ecohealthalliance.org)"
+	description = "Research Scientist"
 	bio = "America's Next Top Modeller [@EcoHealthAlliance](https://www.ecohealthalliance.org/personnel/brooke-watson-2). Organizer and R Lady [@RLadiesNYC](http://www.rladiesnyc.org). Internet ambassador and noted meme sommelier."
 
 	twitter = "brooklynevery1"
