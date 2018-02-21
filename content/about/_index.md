@@ -10,6 +10,6 @@ I am a Research Scientist at [Ecohalth Alliance](http://www.ecohealthalliance.or
  
 Find me on [Github](http://www.github.com/brooke-watson) modeling viral discovery and filling R code with [rap music](https://github.com/brooke-watson/BRRR), or on [Twitter](http://twitter.com/brookLYNevery1) Having Opinions™ about data, public health, conservation, and Being Too Online. 
 
-Get in touch on Twitter, [LinkedIn](linkedin.com/in/brookewatson1), or by [email](mailto:brookewatsonepi@gmail.com). 
+Get in touch on Twitter, [LinkedIn](linkedin.com/in/brookewatson1), or by [email](mailto:hi@brooke.science). 
 
 ***
