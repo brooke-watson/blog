@@ -17,10 +17,11 @@ But, like many around me, I eventually reached a tipping point. The person who g
 
 So, thanks to Emily, this space exists. (Others, including [Alison Hill](https://alison.rbind.io/post/up-and-running-with-blogdown/) and [Mara Averick](https://maraaverick.rbind.io/2017/10/updating-blogdown-hugo-version-netlify/), also wrote super helpful posts that helped me navigate hosting and deploying sites using Netlify and Github.)
 <br>
-I'll use it primarily for two reasons: 
 
-1. I am working on Very Weird Side Projects, and I want to talk about them for more than 280 characters.  
-2. I Google the same things CONSTANTLY. I'd like to do less of that. 
+I'll use it primarily for three reasons: 
+
+1. Talking about many Very Weird Side Projects for more than 280 characters.  
+2. Writing down, for once and for all, the things I Google on basically a weekly basis.
 3. Peppering my R Markdowns with the occasional Good Place GIF. 
 
 <center><iframe src="https://giphy.com/embed/xUOxeRRkTYdQJfyy2Y" width="360" height="360" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/thegoodplace-season-2-nbc-xUOxeRRkTYdQJfyy2Y">via GIPHY</a></p>
