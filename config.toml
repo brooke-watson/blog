@@ -1,5 +1,5 @@
 # Site settings
-baseurl = "/"
+baseurl = "http://blog.brooke.science/"
 languageCode = "en"
 title = "Brooke Watson"
 theme = "hugo-theme-cactus-plus"
@@ -19,7 +19,7 @@ contentdir = "content"
 	enableToc = true
 
 	enableDisqus = true
-	disqusShortname = "brooklyneveryone"
+	disqusShortname = "brooke-dot-science"
 
 	enableSummary = true
 	# Set the value to true if use description in post front matter replace content summary
