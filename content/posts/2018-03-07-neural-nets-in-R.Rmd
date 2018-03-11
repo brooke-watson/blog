@@ -1,0 +1,542 @@
+---
+title: 'Natural Love Language Processing: LSTM Recurrent Neural Networks with Keras in R'
+author: Brooke Watson
+date: '2018-03-07'
+slug: neural-nets-in-R
+categories: []
+output:
+  blogdown::html_page:
+    toc: true 
+tags:
+  - NLP
+  - neural networks
+  - deep learning
+  - machine learning 
+  - TensorFlow
+  - Keras
+  - R
+  - LSTM
+  - RNN
+  - SQL
+  - RSQLite 
+description: "Training a Long Short-term Memory Recurrent Neural Network on text message data."
+---
+
+
+<style>
+  div.container {
+    display:inline-block;
+  }
+
+</style>
+
+
+```{r, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = FALSE, message = FALSE, include = TRUE, eval = FALSE)
+```
+
+A few weeks ago, I saw JJ Allaire's [talk](https://www.youtube.com/watch?v=atiYXm7JZv0) at the New York Open Statistical society meetup. JJ is the CEO of RStudio and one of the developers of R's [Keras](https://keras.rstudio.com/) package, which interfaces with the Keras TensorFlow libraries from within R. His take on the interplay between deep learning and R's more traditional stats wheelhouse is thoughtful, straightforward, and refreshingly hype-free. 
+
+JJ's talk gave me both inspiration and [vignettes](https://keras.rstudio.com/articles/examples/lstm_text_generation.html) I could use to get started. It also happened to fall on the day after Valentine's Day. 
+
+The Keras vignette trains a model to write like [Nietzsche](https://keras.rstudio.com/articles/examples/lstm_text_generation.html). I trained mine to text like my fiancé and me. 
+
+```{r ,eval=TRUE}
+library(keras)
+library(RSQLite)
+library(tidyverse)
+library(tokenizers)
+library(readxl)
+library(here)
+library(janitor)
+library(lubridate)
+library(utf8)
+```
+
+# Getting the data 
+
+When we first started dating, my fiancé was living in New York while I was in Sydney, Australia. Naturally, we texted a **lot**. Fortunately, we did most of that texting in Viber, a Whatsapp-like international message service that lets you export your entire message history into a convenient .xlsx file. At some point, we saved these, so reading those into R was cake. 
+
+```{r}
+library(readxl)
+viber <- read_excel("~/Documents/viber/data/Brooke Watson Viber Messages - Aussie Second Half.xlsx", col_names = FALSE) %>% 
+  remove_empty_rows()
+
+# set column names 
+names(viber) = c("date", "time", "person", "number", "message")
+
+paste("Number of messages:", length(viber$message))
+paste("Number of characters:", sum(nchar(viber$message), na.rm = TRUE))
+```
+
+```{r, highlight=FALSE}
+[1] "Number of messages: 2558"
+[1] "Number of characters: 113701"
+```
+
+(I'm not including the raw data here, for obvious reasons. Are you insane? Not everything is reproducible, fam.) 
+
+Unfortunately, we didn't export this Excel this early enough. Both of us got new phones during the year or so that I lived in Oz, so we have roughly 2 months of our early conversations. 113701 characters is *decent*, but I wanted more. 
+
+##  Reading iMessages into R 
+
+We also have lots of iMessage data, which at first glance didn't seem to be exportable in any spreadsheet format. Fortunately,  though, the Messages app on Macbook saves all chat history in a SQLite database that is stored in `~/Library/Messages/chat.db`. This means I could use RSQLite and SQL code to pull message data down into a tidy data table. 
+(Many thanks to Steven Morse for a great play-by-play [post](https://stmorse.github.io/journal/iMessage.html) on analyzing iMessage conversations.)  
+
+```{r, eval = FALSE}
+# find the path to the iMessages saved in the Message app  
+filename <- "~/Library/Messages/chat.db" 
+# connect to the database 
+con <- dbConnect(drv = dbDriver("SQLite"),
+                dbname = filename)
+
+# get a list of all tables
+dbListTables(con)
+
+# explore the handles table to find the chat id of interest 
+handles = dbGetQuery(con, "SELECT * from handle")
+
+# use SQL to join the chat table (which holds the individual phone)
+# to the actual messages 
+imessage <- dbGetQuery( con,"SELECT ROWID, text, handle_id, is_from_me, date 
+FROM message T1 
+INNER JOIN chat_message_join T2 
+    ON T2.chat_id=5 
+    AND T1.ROWID=T2.message_id 
+ORDER BY T1.date;" )
+
+```
+
+Now that I've scraped together all of the texts I could find, I need to bind them into one long text string. I dropped everything but the actual texts - I won't use the dates, IDs, or other information as inputs into this model, so they can go. 
+
+```{r}
+messages <- bind_rows(
+  data_frame(msg = viber$message), 
+  data_frame(msg = imessage$text)
+)
+```
+
+Now I can remove all NAs, collapse, and tokenize the text... 
+
+```{r}
+text <- messages$msg[is.na(messages$msg) == FALSE] %>% 
+  str_to_lower() %>%
+  str_c(collapse = "\n") %>%
+  tokenize_characters(strip_non_alphanum = FALSE, simplify = TRUE)
+paste("Number of characters:", length(text))
+```
+
+```{r, highlight=FALSE}
+[1] "Number of characters: 265924"
+```
+...and get a list of all the unique characters in the corpus. 
+
+```{r}
+chars <- text %>%
+  unique() %>%
+  sort()
+paste("total chars:", length(chars))
+```
+
+```{r, highlight=FALSE}
+[1] "total chars: 176"
+```
+
+176?? That's way more characters than there are in the alphabet. Even including all digits and punctuation marks, this seems high. Let's see what's in there:
+
+```{r}
+utf8::utf8_print(chars)
+```
+
+```{r, highlight=FALSE}
+  [1] "\n"     " "      "　"     "_"      "＿"     "-"      ","     
+  [8] ";"      ":"      "!"      "¡"      "?"      "¿"      "."     
+ [15] "'"      "‘"      "’"      "\""     "“"      "”"      "("     
+ [22] ")"      "["      "]"      "@"      "*"      "/"      "\\"    
+ [29] "&"      "#"      "%"      "^"      "¯"      "+"      "<"     
+ [36] "="      ">"      "|"      "~"      "─"      "│"      "┌"     
+ [43] "┐"      "└"      "┘"      "■"      "☺"     "♀"      "⚾"    
+ [50] "🇵🇦"     "✈"     "✨"     "❤"     "🌝"     "🍯"     "🍹"    
+ [57] "🎉"     "🏠"     "🏼"     "🏽"     "🏿"     "🐘"     "👀"    
+ [64] "👋"     "👌"     "👍"     "👏"     "💀"     "💕"     "💡"    
+ [71] "💯"     "🔥"     "🤔"     "😁"     "😂"     "😄"     "😇"    
+ [78] "😉"     "😊"     "😍"     "😏"     "😑"     "😔"     "😕"    
+ [85] "😘"     "😚"     "😞"     "😠"     "😩"     "😬"     "😭"    
+ [92] "😱"     "😳"     "🙃"     "🙄"     "🙌"     "🙏"     "🚀"    
+ [99] "🚣"     "￼"      "$"      "£"      "0"      "1"      "2"     
+[106] "3"      "4"      "5"      "6"      "7"      "8"      "9"     
+[113] "a"      "á"      "b"      "c"      "d"      "e"      "é"     
+[120] "f"      "g"      "h"      "i"      "i"      "í"      "j"     
+[127] "k"      "l"      "m"      "n"      "ñ"      "o"      "ó"     
+[134] "p"      "q"      "r"      "s"      "t"      "™"      "u"     
+[141] "v"      "w"      "x"      "y"      "z"      "ツ"     "\ue003"
+[148] "\ue022" "\ue032" "\ue111" "\ue20c" "\ue23e" "\ue242" "\ue243"
+[155] "\ue245" "\ue247" "\ue24a" "\ue24b" "\ue312" "\ue326" "\ue327"
+[162] "\ue328" "\ue329" "\ue32d" "\ue32e" "\ue335" "\ue415" "\ue418"
+[169] "\ue41a" "\ue41b" "\ue425" "\ue437" "🤙"     "🤩"     "🤫"    
+[176] "🤷"    
+```
+
+Oh, ok. Sure. There's a whole heap of emojis. There are also a ton of characters that start with `\ue`: not sure yet what that's about, or how that will affect the model. Perhaps we'll find out later. It seems fitting that the last character is this lady: 🤷. 
+
+# Preparing text data for an LSTM neural network
+
+First, I cut the text in semi-redundant sequences of `maxlen` characters. I'm using the average number of characters in a text as the maximum cut length. This splits the data up at a ton of (repeating) cut points, and separates each piece into two vectors: the sequence of `maxlen` characters, and the next character that comes after them.
+
+```{r}
+maxlen <- messages %>% 
+  mutate(count = nchar(msg)) %>% 
+  summarise(avg = round(mean(count, na.rm = TRUE), 0)) %>% 
+  as.numeric()
+```
+
+
+```{r}
+dataset <- map(
+  seq(1, length(text) - maxlen - 1, by = 1), 
+  ~list(sentence = text[.x:(.x + maxlen - 1)], next_char = text[.x + maxlen])
+)
+```
+
+Each piece of the list will look something like this: 
+
+```{r}
+dataset[[200]]
+```
+
+```{r, highlight=FALSE}
+$sentence
+ [1] "e" "r" " " "p" "o" "i" "n" "t" "s" "!" " " "y" "o" "u" " " "d"
+[17] "e" "f" "i" "n" "i" "t" "e" "l" "y" " " "h" "a" "v" "e"
+
+$next_char
+[1] " "
+```
+
+I'll then transpose it so that I have one section: a list of `sentence` segments of 40 characters each, and a list of `next_char`s. 
+
+```{r}
+dataset <- transpose(dataset)
+```
+ 
+Now, I have to vectorize the data. First I'll initialize two arrays - one where I'll provide the sentence data, and one where I'll predict the next character. There will be a row for each item in both of the lists - in my dataset, that's 99101 rows of (sentence chunk) + (next-char) pairs. 
+
+The "next char" array is just a matrix. There is one column for every character in my character list training set - 175, since this list includes letters, digits, punctuation marks, and even emojis and other unicodes. If the given character is the "next character" for a given item in our next char list, that box will have a 0, if not, it's a 0. 
+
+The sentence array acts the same way, but it has a third dimension of `maxlen` length - one position for each character in each of the sentence chunks. 
+
+```{r, eval = FALSE}
+x <- array(0, dim = c(length(dataset$sentence), maxlen, length(chars)))
+y <- array(0, dim = c(length(dataset$sentence), length(chars)))
+
+for(i in 1:length(dataset$sentence)){
+  
+  x[i,,] <- sapply(chars, function(x){
+    as.integer(x == dataset$sentence[[i]])
+  })
+  
+  y[i,] <- as.integer(chars == dataset$next_char[[i]])
+  
+}
+```
+
+# Defining a keras model
+
+Finally, it's time to define our model.
+
+As we add the layers (e.g. `layer_lstm`, to add a long short-term memory unit), we have to pass them several arguments: 
+
+1. object: this is the model object. 
+2. units: in an LSTM, this is the number of hidden memory units that the model holds on to when making a prediction. More units tends to lead to better predictions, but they take up a lot of RAM and a lot of time. 
+3. input_shape. _"Dimensionality of the input (integer) not including the samples axis. This argument is required when using this layer as the first layer in a model."_ This is just the dimensions of our training data, not including the samples axis (The length of each list in the `dataset` object). Here, I've asked for 37 characters per training chunk, and I have 176 unique character possibilities, so the input shape is c(37, 176). 
+
+The densely-connected neural network layer is added with `layer_dense.` Here we only have to specify the units of the output space. Here, this is our  125 unique possible character outputs. Finally, we add the softmax function to get a probability distribution over these 125 different possible next characters. 
+
+Here we're using a Root Mean Square Propagation optimizer and a categorical cross entropy loss function. You can get into the weeds over these choices, but the point is that they're good standard choices for predicting multiple (but mutually exclusive) classes, like characters in a word. 
+
+```{r, eval = TRUE}
+model <- keras_model_sequential()
+
+model %>%
+  layer_lstm(128, input_shape = c(37, 176)) %>%
+  layer_dense(176) %>% 
+  layer_activation("softmax")
+
+optimizer <- optimizer_rmsprop(lr = 0.01)
+
+model %>% compile( 
+  loss = "categorical_crossentropy", 
+  optimizer = optimizer
+)
+```
+
+# Defining model output 
+
+As I train the model, I want it to periodically show me its predictions. We can do this by defining the `callback` that happens `on_epoch_end`. After every epoch, I want this to predict a string of characters. The length of that string is defined when we `fit()` the model. 
+
+I also want to vary the kinds of predictions I get by varying the `diversity` parameter. That does what it sounds like it will, and it will become **very** clear what that parameter is doing when we start looking at output.
+
+```{r, eval = TRUE}
+
+sample_mod <- function(preds, temperature = 1){
+  preds <- log(preds)/temperature
+  exp_preds <- exp(preds)
+  preds <- exp_preds/sum(exp(preds))
+  
+  rmultinom(1, 1, preds) %>% 
+    as.integer() %>%
+    which.max()
+}
+
+on_epoch_end <- function(epoch, logs) {
+  
+  cat(sprintf("epoch: %02d ---------------\n\n", epoch))
+  
+  for(diversity in c(0.2, 0.5, 1, 1.2)){
+    
+    cat(sprintf("diversity: %f ---------------\n\n", diversity))
+    
+    start_index <- sample(1:(length(text) - maxlen), size = 1)
+    sentence <- text[start_index:(start_index + maxlen - 1)]
+    generated <- ""
+    
+    for(i in 1:400){
+      
+      x <- sapply(chars, function(x){
+        as.integer(x == sentence)
+      })
+      x <- array_reshape(x, c(1, dim(x)))
+      
+      preds <- predict(model, x)
+      next_index <- sample_mod(preds, diversity)
+      next_char <- chars[next_index]
+      
+      generated <- str_c(generated, next_char, collapse = "")
+      sentence <- c(sentence[-1], next_char)
+      
+    }
+    
+    cat(generated)
+    cat("\n\n")
+    
+  }
+}
+
+print_callback <- callback_lambda(on_epoch_end = on_epoch_end)
+```
+
+# Training the model  
+
+Finally, it's time to train the model. It's important to remember that ` %>% ` works differently on keras models than it does in other R packages. Typically, to change an existing object, we have to pass a function to it using <- or = like so: 
+
+```{r}
+dataset <- dataset %>% 
+  mutate(newvar = oldvar + 3)
+```
+
+**This is NOT the case in Keras models.** Keras models are **modified in place**, which means that everytime you pipe a model into a set of arguments, it gets updated. `model %>%`, NOT `model <- model %>%`. 
+
+So, before we get started, here's where we are if we just print out the model to the console. 
+
+```{r, eval = TRUE}
+model
+```
+
+I'm using a **batch size** of 128, which is the number of training examples in one forward/backward pass. An **epoch** is one forward pass and one backward pass of all the training examples. The higher the batch size, the more memory space you'll need. 
+
+```{r, eval = FALSE}
+
+model %>% fit(
+  x, y,
+  batch_size = 128,
+  epochs = 5,
+  callbacks = print_callback
+)
+
+```
+
+I played around with different parameters for a while, but kept forgetting how many epochs I'd trained on different models. Eventually, I cleared everything from memory, turned on 50 epochs, and went to bed with my computer running. 
+
+When I woke up, I had 200 different computer guesses of a conversation between two people who would eventually get engaged. 
+
+# LSTM text output 
+
+Because of the `print_callback` that we defined, I can check the loss and the predictions for 50 epochs with 4 different levels of diversity each. (Only roughly 20 would print to my console at any one time, but because I ran this from within an `.Rmd`, I could see all the predictions from all 50 epochs.
+
+Let's check in on the first guess. This model was never going to give good predictions after only one epoch, but I wanted to stop here to see what this thing was putting out. It's first attempt, with a 0.2 diversity, was... not great. 
+
+```{r, highlight=FALSE}
+Epoch 1/50
+272957/272957 [==============================] - 582s 2ms/step - loss: 2.0566
+epoch: 00 ---------------
+
+diversity: 0.200000 ---------------
+
+ahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahah
+```
+
+This is...a rude guess. This isn't *too* far off from the kind of text I am prone to send, but I don't think I have the patience to go on for 400 characters. Clearly, the model has gotten stuck in a feedback loop.
+
+When we increase the diversity, we get more punctuation and new lines - indication that the model is freeing itself up to choose from less common characters. However, this is done at the expense of English words. 
+
+(Also: from here on, I've entered all of the most interesting model outputs into an [fake iPhone text generator](iphonefaketext.com/) to make it feel more real. I arbitrarily varied who was sending and who was receiving, because the output doesn't tell me that, and chose breaks that *~* felt right *~*, but I haven't changed any of the text. I *really* couldn't make this up.)
+
+![](/figs/2018-03-07-neural-nets-in-R/epoch1-1.2.png)
+ 
+Yikes. Here we have the opposite problem - plenty of different characters, but it's not frequently landing on real words. 
+
+Our Goldilocks (not too hot, not too cold) might be around 0.5 - at least for this epoch.
+
+![](/figs/2018-03-07-neural-nets-in-R/epoch1-0.5.png)
+
+Not bad for the first round. Because I haven't made the training data public, you're just going to have to take my word for it that I've never asked anyone to cruttion with me, nor have I been to the Med the Camece.
+
+# Measuring performance 
+
+Of course, the point of running several epochs is to improve upon the model. In the first round, our loss was 2.0566, but it gets lower as we go through For example, here's an excerpt from epoch 12, with the diversity set at 1.0. 
+
+We got down to a loss of 1.5461, which isn't a huge change from the starting point. I'm mostly interpreting the outputs of the loss function in relation to one another, so this feels like an improvement. 
+
+![](/figs/2018-03-07-neural-nets-in-R/epoch-12-1.png)
+
+This, strucutrally, looks much more like a casual text exchange. Already, we see that some texts bits start with "hi!", punctuation comes at reasonable places, and we split some sentences over multiple texts. (It even spelled y'all right, which some of y'all still seem to be confused about.) 
+
+It's also generating some #hip #new #slang that I'm excited to use in real life. "Demat, girl, we workin!" This feels like a 2018 version of trying to make Fetch happen.  
+
+So the model seems to be improving. Then, an odd thing happens. The loss function metric starts shooting up dramatically, and output gets more and more wild and uninterpretable. At the 12th epoch we find a local minimum, but then things start to unravel. 
+
+At epoch 16, we're back up to a loss of 1.837, and the model seems to have "forgotten" some rules it's learned about which characters are usually next to one another, where apostrophes go, and how long words are allowed to be. 
+
+![](/figs/2018-03-07-neural-nets-in-R/epoch-16.png)
+
+By epoch 30, the model has falling completely out of its tree, departing entirely from any semblance of human language, English or otherwise. 
+
+
+![](/figs/2018-03-07-neural-nets-in-R/epoch-30.png)
+
+## What's happening here?
+
+So what's going on? We were doing so well, making slow and steady progress towards English sentences, and then slid right off the rails. Why? 
+
+Broadly, it's because I don't have enough training data to run 50 epochs of this model with these parameters. As we run through the epochs, the model learns and reinforces the patterns that it sees. In the beginning, this improves its performance. As we start to run out of data, though, the model runs out of patterns to find, and starts fixating on details that aren't actually important to generating human language. Remember, this is a completely vanilla model when we start. How should it know about grammar? 
+
+# Iterating 
+
+I tried a few more rounds, varying the `maxlen` input sequence, the learning rate of the optimizer (`optimizer_rmsprop(lr = 0.01)`). 
+
+In keeping with the timeless paradigm "garbage in, garbage out", I also returned to the input data to clean it a bit more. Remember all those characters that started with `\ue`? I found the culprit. 
+
+```{r}
+ue = purrr::map(chars[147:172], ~which(str_detect(messages$msg, .x))) %>%
+  unlist() 
+
+messages$msg[min(ue-1):max(ue+1)]
+```
+
+```{r, highlight = FALSE}
+[1] "Haha, I couldn't figure out how to get the emoji keyboard on this thing, I think I downloaded the wrong app or something, but it has some pheNOMenal artwork"
+[2] "┌　   ┌┐ ││　　││ └── └─┐┌─┘    └ ┌─── │　　　　│ │     ┐│ 　  └┘│ └──── ┌┐　　┌　 ││　　││ 　  ││ │└──│ └─── ARE MINE"                   
+[3] "I think they're all taken directly from Cher tweets"                                                                                                         
+[4] "                         Love     CHARM                                           "                               
+[5] " /■ ■ ■\\~     |      |         |            \\＿＿/ *I'm Fallin in LOVE*  ILuvYOUxoxo"                                                    
+[6] "This is someone's job. Or unpaid endeavor borne of passion. I can't tell which is more inspiring"                                                            
+
+```
+
+
+Haha, ok. Apparently those are just wild characters that at some point in their winding journey from A Weird App -> Viber -> Excel -> R got mistranslated into a strange encoding. I'm just going to remove those lines from my input dataset. 
+
+```{r}
+range(ue)
+
+messages <- messages[-(min(ue):max(ue)) , ]  
+```
+
+With a heavy heart, I'm also going to test what happens if I remove all the emojis. `r emo::ji("sob")`
+
+I don't ever use emojis as replacement for words in the middle of a sentence, but I sometimes use them for emphasis or confirmation. Because of this, I feel pretty confident that the meanings of sentences won't change without them. It's possible that having a smaller number of characters to choose from will help prevent the model from falling into an emoji-fueled feedback loop. 
+
+```{r}
+
+text <- messages$msg[is.na(messages$msg) == FALSE] %>%  
+  str_to_lower() %>% 
+  str_c(collapse = "\n") %>%  
+  tokenize_characters(strip_non_alphanum = FALSE, simplify = TRUE)  
+  
+# converting emojis to NAs  
+text <- gsub('\\p{So}|\\p{Cn}',  
+                       NA, 
+                       text, perl = TRUE)
+
+# removing the NAs formerly known as emojis 
+text <- text[!is.na(text)]
+ 
+paste("Number of characters:", length(text))
+
+chars <- text %>%
+  unique() %>%
+  sort()
+paste("total chars:", length(chars))
+
+```
+
+```{r, highlight=FALSE}
+[1] "Number of characters: 264891"
+[1] "total chars: 82"
+```
+
+
+Without dramatically reducing the input data size, we've more than halved the number of possible characters to draw from. This feels like progress! This is the reason that we also remove capital letters - it's likely that the model could learn that the first word of every sentence is capitalized, but the increased size of the pool of potential inputs isn't worth it for datasets of this size. 
+
+Of course, I had to regenerate x and y, and run the model again. 
+
+```{r, eval=FALSE}
+
+model %>% fit(
+  x, y,
+  batch_size = 150,
+  epochs = 10,
+  callbacks = print_callback
+)
+
+```
+
+These alterations may have helped slightly - we got loss down to 1.486, and it didn't shoot back up - but they didn't change the results materially. 
+
+# Archetypes  
+
+In combing through the output, some patterns emerged. Here are some archetypes that show up a lot: 
+
+**1. The feedback loop** 
+
+With low diversity, the model OFTEN gets stuck in feedback loops. When trained on (many long-distance) texts between my fiancé and myself, this often makes us come off WAY cornier than we really are. 
+
+![](/figs/2018-03-07-neural-nets-in-R/corny.png)
+
+**2. The alien conversation** 
+
+With high diversity, there's clearly a conversation happening, but it's not in any language I've ever seen.   
+
+![](/figs/2018-03-07-neural-nets-in-R/nonsense.png)
+ 
+**3. The fake deep poetry** 
+
+This is self explanatory. In the wise words of [Leslie Knope](https://www.youtube.com/watch?v=0-3ctfy1M2s):
+
+Anything / Can Be a Slam / Poem / If you Say it like This 
+
+![](/figs/2018-03-07-neural-nets-in-R/fake-deep.png)
+
+**4. The [Jabberwock](https://www.poetryfoundation.org/poems/42916/jabberwocky)** 
+
+Much of this output, unsurprisingly, is Jabberwocky. If you read it in a Scottish accent, it could also pass for a Robbie Burns poem. The structure is mostly intuitive, but there are too many vowels and consonants in all the wrong places. It doesn't have to make any sense for it to sound nice. 
+
+<center>
+<video controls="controls" width="300" height="600" 
+    src="/figs/2018-03-07-neural-nets-in-R/IMG_0930.MOV"></video>
+</center>
+
+
+# Takeaways 
+
+In summary, this is the first of the start. The thing in the time. I think. I think. I don't think. I might be the world?
