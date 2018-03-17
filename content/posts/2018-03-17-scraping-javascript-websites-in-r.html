@@ -1,0 +1,371 @@
+---
+title: Scraping Javascript websites in R
+author: Brooke Watson
+date: '2018-03-17'
+slug: scraping-javascript-websites-in-r
+categories: [] 
+output:
+  blogdown::html_page:
+    toc: true 
+tags:
+  - web scraping
+  - mp3
+  - wav
+  - file conversion
+  - javascript
+  - httr
+  - rvest
+  - data tidying
+  - stringr
+  - phantomJS
+  - homebrew
+  - BRRR
+  - Gucci
+  - R
+  - open source
+  - package development
+  - Github
+description: "Using PhantomJS to scrap audio files from therapboard.com. This was the preliminary work necessary to create BRRR, an R package for audio notifications worthy of Gucci Mane."
+---
+
+
+<div id="TOC">
+<ul>
+<li><a href="#background-remixing-packages-in-r">Background: remixing packages in R</a></li>
+<li><a href="#javascript-webscraping-in-r">Javascript webscraping in R</a><ul>
+<li><a href="#download-phantomjs-using-homebrew">Download PhantomJS using homebrew</a></li>
+<li><a href="#writing-scrape.js">Writing scrape.js</a></li>
+<li><a href="#scraping-therapboard.com">Scraping TheRapBoard.com</a></li>
+<li><a href="#extracting-audio-files">Extracting audio files</a></li>
+<li><a href="#downloading-mp3s">Downloading mp3s</a></li>
+</ul></li>
+<li><a href="#organizing-an-r-package">Organizing an R package</a><ul>
+<li><a href="#converting-mp3s-to-wavs">Converting mp3s to wavs</a></li>
+<li><a href="#cleaning-up-and-filtering-.wav-file-names">Cleaning up and filtering .wav file names</a></li>
+<li><a href="#tidying-file-names">Tidying file names</a></li>
+<li><a href="#renaming-file-paths-from-within-r">Renaming file paths from within R</a></li>
+</ul></li>
+<li><a href="#remixing-the-beep-function">Remixing the beep() function</a></li>
+<li><a href="#wrapping-it-all-into-a-package">Wrapping it all into a package</a></li>
+<li><a href="#maintaining-an-open-source-package-in-r">Maintaining an open source package in R</a></li>
+</ul>
+</div>
+
+<div id="background-remixing-packages-in-r" class="section level1">
+<h1>Background: remixing packages in R</h1>
+<p>Open source software is made for remixing. When I first switched from STATA to R, I was comfortable using predefined packages and commands, but it quickly became apparent that R’s appeal lies in the power to write custom functions and packages. What’s more, because R is open source, these packages don’t have to be built from scratch. They’re best when they sample from others.</p>
+<center>
+<iframe src="https://giphy.com/embed/1uv4CWggzI7te" width="240" height="360" frameBorder="0" class="giphy-embed" allowFullScreen>
+</iframe>
+</center>
+<p>When I saw <a href="https://twitter.com/rabaath">Rasmus Baath</a>’s amazing <a href="https://github.com/rasmusab/beepr">beepr</a> package <a href="https://twitter.com/dannagifford/status/937670231291564032">retweeted</a>, I knew I wanted to sample it. Beepr includes one function, <code>beep()</code>, which plays a sound when a script is done running. It’s immediately useful to me, as I am constantly running short 2-5 minute jobs, but getting distracted and spending 30 minutes away from my code because I don’t realize it’s done. Beepr’s built in sounds are pretty fun – <code>beep(&quot;mario&quot;)</code> and <code>beep(&quot;treasure&quot;)</code> play old-school video game celebrations, and you can include html links to wav files to play any .wav that exists on the internet.</p>
+<p>For my beepr remix, I wanted to use ad libs from rap songs. I often want to shout “GUCCI” or “WE THE BEST” when a long script is done, but I have over the years come to understand that “most people” don’t “appreciate” this kind of action in a “workplace environment.” I can settle for letting DJ Khaled and Gucci Mane shout them for me.</p>
+<p>If these had been on the internet in <code>.wav</code> form, I probably wouldn’t have spent any time learning how to scrape audio files from the internet and build them into a custom package. But they weren’t. Thus, <a href="https://github.com/brooke-watson/BRRR">BRRR</a> was born.</p>
+<p>It can be installed and run with the following command:</p>
+<pre class="r"><code>devtools::install_github(&quot;brooke-watson/BRRR&quot;)
+library(BRRR)
+
+# play a simple rap adlib in R 
+skrrrahh()</code></pre>
+<p>For background on what BRRR does and how it got it’s name, the <a href="https://github.com/brooke-watson/BRRR">README</a> is quite comprehensive. Modifying beepr to include different sounds was actually quite straightforward - getting the data was the interesting part. Here, I’ll walk through how I scraped a JavaScript website, extracted and downloaded over 300 mp3 files, and hosted them in a package on Github.</p>
+</div>
+<div id="javascript-webscraping-in-r" class="section level1">
+<h1>Javascript webscraping in R</h1>
+<pre class="r"><code># import packages 
+library(rvest)
+library(stringr)
+library(tidyverse)
+library(purrr)
+library(here)
+library(beepr)
+library(DT)</code></pre>
+<p>Getting the audio files entailed a fair bit of preliminary work. I had to:</p>
+<ol style="list-style-type: decimal">
+<li>Scrape <a href="http://therapboard.com/">TheRapBoard</a> to find paths to all of the audio files.</li>
+<li>Download mp3 files from the website.</li>
+<li>Convert them from .mp3 to .wav format.</li>
+<li>Pare down from ~300 to ~50 sounds to keep the package (relatively) light.</li>
+<li>Put them in a folder that R would recognize and bundle into my package.</li>
+</ol>
+<p><em>A note</em>: web scraping can be a tremendously useful way to extract data from the internet, but it can cause real problems for some websites and should be done respectfully and ethically. <a href="https://towardsdatascience.com/ethics-in-web-scraping-b96b18136f01">This post</a> from James Densmore lays out some guidelines for doing this responsibly. Before I did anything, I checked to see whether The Rap Board had a <a href="http://www.robotstxt.org/robotstxt.html">robots.txt</a> file that prevented or provided specific instructions on how to scrape the site. I recommend doing this before any web scraping project - and keeping that in mind if you’re thinking of reproducing this script.</p>
+<div id="download-phantomjs-using-homebrew" class="section level2">
+<h2>Download PhantomJS using homebrew</h2>
+<p>Httr and rvest are the two R packages that work together to scrape html websites. Usually, this works by using a browser extension called SelectorGadget to find all items styled with a particular CSS - actors in an IMDB table, for example. For more, check out the SelectorGadget vignette:</p>
+<pre class="r"><code>if(!require(rvest)) {
+  install.packages(&quot;rvest&quot;)
+  library(rvest)
+}
+vignette(&quot;selectorgadget&quot;)</code></pre>
+<p>Unfortunately, this didn’t work for the website I wanted to scrape, which was written primarily in JavaScript. Instead, I adapted Florian Teschner’s <a href="https://www.r-bloggers.com/web-scraping-javascript-rendered-sites/">instructions</a> on using PhantomJS to convert the website into HTML. I wrapped this in a <code>system()</code> call inside R Studio, but it could just as easily be done from the command line.</p>
+<p>Before we can do anything, we need to download and unzip <a href="phantomjs.org">PhantomJS</a>. This can be done from the link, but if you have a Mac and insist on staying inside RStudio, below is some circuitous R code you can use to do just that. It first downloads <a href="https://brew.sh/">Homebrew</a>, if you don’t have it yet, and then downloads <a href="http://phantomjs.org/">PhantomJS</a>. Homebrew is an easy way to install packages onto a Mac from the terminal. PhantomJS calls itself “a headless WebKit scriptable with a JavaScript API”, which for our purposes means that it will convert a JavaScript website like Rap Board into html. This means we can get the paths to the .mp3 soundboard files really easily.</p>
+<pre class="r"><code># donwload homebrew if it doesn&#39;t already exist 
+if(!dir.exists(&quot;/usr/local/Homebrew&quot;)) {
+  system(&#39;ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;&#39;)
+}
+
+# download phantomjs using homebrew 
+if(!dir.exists(&quot;/usr/local/Cellar/phantomjs&quot;)) {
+    system(&quot;brew install phantomjs&quot;) 
+}</code></pre>
+</div>
+<div id="writing-scrape.js" class="section level2">
+<h2>Writing scrape.js</h2>
+<p>Next, we’ll write the JavaScript code to a js file called scrape.js. If you want to scrape a different JavaScript URL, we can change the path in the next function.</p>
+<pre class="r"><code># write the javascript code to a new file, scrape.js
+
+writeLines(&quot;var url = &#39;http://therapboard.com&#39;;
+var page = new WebPage();
+var fs = require(&#39;fs&#39;);
+
+page.open(url, function (status) {
+        just_wait();
+});
+
+function just_wait() {
+    setTimeout(function() {
+               fs.write(&#39;1.html&#39;, page.content, &#39;w&#39;);
+            phantom.exit();
+    }, 2500);
+}
+&quot;, con = &quot;scrape.js&quot;)</code></pre>
+</div>
+<div id="scraping-therapboard.com" class="section level2">
+<h2>Scraping TheRapBoard.com</h2>
+<p>This function takes <code>scrape.js</code> and the url of our choice (in this case, the url that hosts the audio files we need) and calls PhantomJS from the command line on a Mac. If you didn’t download PhantomJS using homebrew, you’ll need to include the path to your downloaded PhantomJS package as a <code>phantompath</code> argument. If you use Windows, this also is going to look different.</p>
+<pre class="r"><code>js_scrape &lt;- function(url = &quot;http://therapboard.com&quot;, 
+                      js_path = &quot;scrape.js&quot;, 
+                      phantompath = &quot;/usr/local/Cellar/phantomjs/2.1.1/bin/phantomjs&quot;){
+  
+  # this section will replace the url in scrape.js to whatever you want 
+  lines &lt;- readLines(js_path)
+  lines[1] &lt;- paste0(&quot;var url =&#39;&quot;, url ,&quot;&#39;;&quot;)
+  writeLines(lines, js_path)
+  
+  command = paste(phantompath, js_path, sep = &quot; &quot;)
+  system(command)
+
+}
+
+js_scrape()</code></pre>
+</div>
+<div id="extracting-audio-files" class="section level2">
+<h2>Extracting audio files</h2>
+<p>After converting the rap board’s website from Javascript into html, I could use <code>rvest</code> and <code>dplyr</code> package functions to get the mp3 paths into a format that I wanted. The code below required some fiddling with stringr and regex to convert a jumble of html into a list of file paths. It could be more succinct, but it works.</p>
+<pre class="r"><code># read the newly created html file 
+html &lt;- read_html(&quot;1.html&quot;)
+
+setup &lt;- html %&gt;% 
+  html_nodes(&quot;source&quot;) %&gt;% 
+  str_c(&quot;&quot;) %&gt;% 
+  as_tibble() %&gt;% 
+  filter(!str_detect(value, &#39;ogg&quot;&#39;)) %&gt;%  
+  lapply(., str_replace, &#39;&lt;source src=\&quot;&#39;, &quot;http://therapboard.com/&quot;) %&gt;% 
+  lapply(., str_split, &quot;\&quot; type&quot;)
+
+mp3s = map(seq_along(setup$value), ~setup$value[[.x]][1]) </code></pre>
+</div>
+<div id="downloading-mp3s" class="section level2">
+<h2>Downloading mp3s</h2>
+<p>Finally, I had the list of mp3 paths. I wrote a function to download the urls into an <code>mp3s/</code> folder that I created inside the function. I used <code>Sys.sleep()</code> to introduce a random lag in between each download, which I hear is <a href="https://gist.github.com/abelsonlive/3769469">best practice</a>.</p>
+<pre class="r"><code>download_mp3s = function(url) { 
+  if(!dir.exists(&quot;mp3s&quot;)) {dir.create(&quot;mp3s&quot;)}
+  # create a place to put them if you haven&#39;t yet 
+  
+  url = url
+  destpath = stringr::str_replace(url, &quot;http://therapboard.com/audio/&quot;, &quot;mp3s/&quot;)
+  download.file(url, destfile = destpath)
+  Sys.sleep(sample(seq(1, 3, by=0.001), 1))
+} </code></pre>
+<p>Then, I waited. Fittingly, I used beepr to alert me when my script was done.</p>
+<pre class="r"><code>lapply(mp3s, download_mp3s)
+beep(&quot;mario&quot;)</code></pre>
+</div>
+</div>
+<div id="organizing-an-r-package" class="section level1">
+<h1>Organizing an R package</h1>
+<div id="converting-mp3s-to-wavs" class="section level2">
+<h2>Converting mp3s to wavs</h2>
+<p>Now that the mp3 files were downloaded into my computer, I had to convert them to .wav files so that they worked with the <a href="https://rforge.net/audio/">audio</a> R package. I used <a href="https://www.ffmpeg.org/">ffmpeg</a> to do this. It’s easiest to do this by downloading ffmepg <a href="https://www.ffmpeg.org/">from the website</a> and running a command from the terminal, but we can wrap them in a <code>system()</code> call like such if we again insist on doing everything from within R. The text inside the system call loops over all the <code>.mp3</code> files in the <code>/mp3</code> folder and converts them to .wav, keeping the rest of the file name the same. I then moved them to their own folder and deleted the mp3s - we won’t need those anymore.</p>
+<p>Again, command line syntax is different in Windows. Them’s the breaks. ¯\_(ツ)_/¯</p>
+<center>
+<iframe src="https://giphy.com/embed/zNXvBiNNcrjDW" width="360" height="347" frameBorder="0" class="giphy-embed" allowFullScreen>
+</iframe>
+</center>
+<pre class="r"><code># convert mp3s to wav files 
+system(&#39;for file in mp3s/*.mp3; do
+   ffmpeg -i &quot;$file&quot; -acodec pcm_s16le -ac 1 -ar 44100 &quot;${file%.mp3}&quot;.wav
+done&#39;) 
+
+# make a new folder for the wav files 
+dir.create(&#39;wav&#39;) 
+
+# move wavs to the wav folder 
+system(&quot;mv mp3s/*.wav wav&quot;) 
+
+# delete the mp3s 
+unlink(&quot;mp3s&quot;, recursive = TRUE, force = TRUE)</code></pre>
+</div>
+<div id="cleaning-up-and-filtering-.wav-file-names" class="section level2">
+<h2>Cleaning up and filtering .wav file names</h2>
+<p>The audio files from The Rap Board don’t have much of a consistent structure for unique IDs. Some are numbered, while some include segments of the lyric. The numbered files don’t always fall in order. This is more than fine for them, but since we’ll often be calling particular sounds from inside the function by name, I don’t particularly want to have to remember whether Gucci yelling “BRRR” is called “gucci_brr” or “gucci_brrr” or, inexplicably, “gucci_14”, as it was when we downloaded it.</p>
+<p>I was doing a lot of <code>str_split</code>ting, so I wrote a convenience function to extract the first component from the rest of the list.</p>
+<pre class="r"><code>extract_first = function(string, pattern) {
+
+  x = stringr::str_split(string, pattern) 
+  y = purrr::map_chr(seq_along(string), ~x[[.x]][1])
+  
+}
+# create a lookup table matching the artist to the unique .wav file 
+wavs = list.files(&quot;wav&quot;)
+wav_names = map_chr(wavs, str_replace , &quot;.wav&quot;, &quot;&quot;)
+artist = extract_first(wav_names, &quot;_&quot;)  
+lookup_table = data_frame(wav_names, artist)</code></pre>
+<p>We’re in a good shape - we now have a dataframe with the names of 319 wav files. That is way too many to include in a package. At this point, I went through all of them and chose my favorites, based on my personal preferences. This part is manual, arbitrary, and important.</p>
+<pre class="r"><code>selected = lookup_table %&gt;% 
+  filter(wav_names %in% c(&quot;2chainz_tru&quot;, &quot;2chainz_whistle&quot;, &quot;bigboi_1&quot;, &quot;biggie_2&quot;, &quot;bigsean_boi2&quot;, &quot;bigsean_doit&quot;, &quot;bigsean_holdup2&quot;, &quot;bigsean_ohgod&quot;, &quot;bigsean_stop&quot;, &quot;bigsean_whoathere&quot;, &quot;birdman_1&quot;, &quot;birdman_4&quot;, &quot;birdman_respeck&quot;, &quot;busta_6&quot;, &quot;chance_aghh2&quot;, &quot;desiigner_rahhh&quot;, &quot;diddy_5&quot;, &quot;drake_5&quot;, &quot;drake_worst&quot;, &quot;drummaboy_1&quot;, &quot;fetty_yeahbaby&quot;, &quot;flava_1&quot;, &quot;future_brrr&quot;, &quot;gucci_1&quot;, &quot;gucci_14&quot;, &quot;gucci_4&quot;, &quot;jayz_itsyoboy&quot;, &quot;jayz5&quot;, &quot;kendrick_tootoo&quot;, &quot;khaled_blessup2&quot;, &quot;khaled_majorkey3&quot;, &quot;khaled_theydontwant&quot;, &quot;khaled_wethebest&quot;, &quot;liljon_2&quot;, &quot;liljon_3&quot;, &quot;nicki_laugh2&quot;, &quot;pitbull_6&quot;, &quot;ross_1&quot;, &quot;ross_2&quot;, &quot;schoolboy_yawk&quot;, &quot;snoop_4&quot;, &quot;soulja_5&quot;, &quot;takeoff_money&quot;, &quot;tpain1&quot;, &quot;traviscott_straightup&quot;, &quot;treysongz_uhunh&quot;, &quot;trick_2&quot;, &quot;waka_1&quot;, &quot;weezy_4&quot;, &quot;yg_skrrt&quot;))</code></pre>
+</div>
+<div id="tidying-file-names" class="section level2">
+<h2>Tidying file names</h2>
+<p>Luckily, the files tend to fall under a general <code>artist_uniqueid</code> naming convention. The next section cleans up the unique IDs. If a rapper has any sound board sounds, you’ll be able to call it with <code>skrrrahh(&quot;name&quot;)</code>. To cycle through the various sounds, use <code>skrrrahh(&quot;name1&quot;)</code>, <code>skrrrahh(&quot;name2&quot;)</code>, etc. until you get an error.</p>
+<pre class="r"><code># make the filenames more consistent 
+filtered_names = selected %&gt;% 
+  group_by(artist) %&gt;% 
+  mutate(n = row_number()-1) %&gt;% 
+  mutate(newnames = paste0(artist, n)) 
+
+# remove the &quot;0s&quot; so that you can call some files just by the artist name
+filtered_names$newnames = map(filtered_names$newnames, str_replace, 
+                              pattern = &quot;0&quot;, replacement = &quot;&quot;) %&gt;% 
+  unlist()
+
+# two are stilled a mess - let&#39;s fix these manually. 
+filtered_names$newnames = str_replace(filtered_names$newnames, &quot;jayz5&quot;, &quot;jayz1&quot;)
+filtered_names$newnames = str_replace(filtered_names$newnames, &quot;tpain1&quot;, &quot;tpain&quot;)</code></pre>
+<p>Finally, I couldn’t make this package without including <a href="https://www.youtube.com/watch?v=3M_5oYU-IsU">Big Shaq</a>. He’s not on the Rap Board yet, so I made his clip in garageband and manually dragged it into <code>inst/adlibs</code>. That means this walkthrough is not <em>entirely</em> reproducible, but as Ralph Waldo Emerson says, _“a foolish consistency is the hobgoblin of little minds”, so Please Do Not @ Me.</p>
+<center>
+<iframe src="https://gfycat.com/ifr/ScaredRecklessCopperbutterfly" frameborder="0" scrolling="no" allowfullscreen width="320" height="184">
+</iframe>
+</center>
+<p><br></p>
+<pre class="r"><code>bigshaqdf = data.frame(wav_names = &quot;bigshaq&quot;, artist = &quot;bigshaq&quot;, n = 0, newnames = &quot;bigshaq&quot;)
+filtered_names = bind_rows(filtered_names, bigshaqdf) %&gt;% 
+  arrange(newnames)</code></pre>
+<p>Let’s take a look at the table we used to transfer the old names to the new ones:</p>
+<pre class="r"><code>knitr::kable(head(filtered_names))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">wav_names</th>
+<th align="left">artist</th>
+<th align="right">n</th>
+<th align="left">newnames</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">2chainz_tru</td>
+<td align="left">2chainz</td>
+<td align="right">0</td>
+<td align="left">2chainz</td>
+</tr>
+<tr class="even">
+<td align="left">2chainz_whistle</td>
+<td align="left">2chainz</td>
+<td align="right">1</td>
+<td align="left">2chainz1</td>
+</tr>
+<tr class="odd">
+<td align="left">bigboi_1</td>
+<td align="left">bigboi</td>
+<td align="right">0</td>
+<td align="left">bigboi</td>
+</tr>
+<tr class="even">
+<td align="left">biggie_2</td>
+<td align="left">biggie</td>
+<td align="right">0</td>
+<td align="left">biggie</td>
+</tr>
+<tr class="odd">
+<td align="left">bigsean_boi2</td>
+<td align="left">bigsean</td>
+<td align="right">0</td>
+<td align="left">bigsean</td>
+</tr>
+<tr class="even">
+<td align="left">bigsean_doit</td>
+<td align="left">bigsean</td>
+<td align="right">1</td>
+<td align="left">bigsean1</td>
+</tr>
+</tbody>
+</table>
+<!-- <iframe seamless src="../d1/index.html" width="100%" height = 300></iframe> -->
+</div>
+<div id="renaming-file-paths-from-within-r" class="section level2">
+<h2>Renaming file paths from within R</h2>
+<p>Now I have to use the information in the data frame to rename the actual files. The easiest way for me to do that is to rename them while moving them into a new directory. I can then delete the entire old directory.</p>
+<p>Conveniently, R packages store all files that they need in the <code>inst/</code> folder, so I have to get these babies there at some point. Let’s do it now.</p>
+<pre class="r"><code># create a new directory, inst/adlibs 
+dir.create(&quot;inst&quot;)
+dir.create(&quot;inst/adlibs&quot;)
+
+# make character vectors that map the old file paths to the new file paths 
+filtered_names &lt;- filtered_names %&gt;% 
+  mutate(old_filepaths = paste0(&quot;wav/&quot;, wav_names, &quot;.wav&quot;),
+         new_filepaths = paste0(&quot;inst/adlibs/&quot;, newnames, &quot;.wav&quot;))
+
+# rename the old paths to the new paths 
+map2(filtered_names$old_filepaths, filtered_names$new_filepaths, file.rename)
+
+# delete the old file path 
+unlink(&quot;wav&quot;, recursive = TRUE, force = TRUE)</code></pre>
+</div>
+</div>
+<div id="remixing-the-beep-function" class="section level1">
+<h1>Remixing the beep() function</h1>
+<p>Now that I had all the audio files in the right place with the right names, I just had to change the name of my main function and update some paths.</p>
+<p>Like beepr, I wanted BRRR to also have a single function. Mine is called <code>skrrrahh()</code>, named for 2017’s most iconic Roadman, Big Shaq.</p>
+<p>The bones of the function are the same. I started by cloning the beepr <a href="https://github.com/rasmusab/beepr">Github repo</a> and fiddling around in the guts of the main function, <code>beep()</code>. Most of my changes were to internal file paths - including hard-coding links to to the new filenames we just generated. I mostly hacked at this using <a href="https://www.sublimetext.com/3">Sublime Text</a> and heavy amounts of Copy-Paste. Really inquiring minds can see the changes in the <a href="https://github.com/brooke-watson/BRRR/commits/master">commit log</a>.</p>
+<div class="figure">
+<img src="/figs/2018-03-17-scraping-javascript-websites-in-r/inst.png" />
+
+</div>
+</div>
+<div id="wrapping-it-all-into-a-package" class="section level1">
+<h1>Wrapping it all into a package</h1>
+<p>I believe Hilary Parker’s <a href="https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/">post</a> on making an R package from scratch is the seminal reference text for this activity. I’ve seen it attributed all over the internet, and as promised, it’s a tremendously simple and straightforward step-by-step guide.</p>
+<p>I did run into a few hiccups along the way, due to my complete inexperience with <code>roxygen</code>. For future reference, or for anyone in a similar boat, here are some notes based on bugs and fixes I discovered:</p>
+<ol style="list-style-type: decimal">
+<li>All documentation code begins with <code>#'</code>, not the single <code>#</code>.</li>
+<li>You have to include <code>#'@export</code> in the documentation of every function if you want it to be available to use in the package.</li>
+<li>I had issues when I included a space between the last documentation line and the first line of the function, and also when <code>@export</code> wasn’t the last line of my documentation. I’m not sure if this is truly necessary, but I’m superstitious enough to keep doing it this way.</li>
+</ol>
+<p>For example, the bit between my documentation and my function looks like this:</p>
+<pre class="r"><code>#&#39; ...(more documentation above)
+#&#39;@export
+skrrrahh &lt;- function(sound=26, expr = NULL) {</code></pre>
+<p><em>Not</em> like this:</p>
+<pre class="r"><code>#&#39; @export 
+#&#39; @params sound expr 
+#&#39; 
+
+
+skrrrahh &lt;- function(sound=26, expr = NULL) {</code></pre>
+<ol start="4" style="list-style-type: decimal">
+<li><p>If any of the functions rely on other packages, you have to <code>@import</code> them for the function to work properly. If the packages you’re importing are huge, and you only want to import certain functions, you can do that as well.</p></li>
+<li><p>Generally, especially if this is your first package, it’s best to shoot for a <em>minimum viable product</em>. MVPs may not include all the examples or links to other documentation that you will eventually want your code to have, but they get it up and running as quickly as possible. You can add additional documentation later. It’s also easier to troubleshoot issues if you’re building a package step-by-step. When you’ve got a ton of well-documented functions, it will be harder to identify the source of the problem if your package fails to build properly.</p></li>
+</ol>
+</div>
+<div id="maintaining-an-open-source-package-in-r" class="section level1">
+<h1>Maintaining an open source package in R</h1>
+<p>Again, <a href="https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/">Hilary</a> and <a href="http://happygitwithr.com/">Jenny</a> have created more and better instructions on installing a package locally and from Github, so I won’t repeat what’s already been done.</p>
+<p>But once I pushed this to Github, I immediately became an open source developer and maintainer. That’s all it takes. Folks saw it on Twitter, got a good chuckle, and immediately started using it, fixing bugs and typos, and offering suggestions for the next version.</p>
+<p>This is the thing I didn’t realize before building this package. When you make something open source, and put it out into the world, people will often just start fixing things for you, for free. I got lucky with BRRR - apparently, the Venn diagram <a href="https://www.instagram.com/p/S6OS2YAWQI/">overlap</a> between rap nerds and stats nerds is much larger than I thought, and more people saw this package than I ever imagined. But this is the beauty of open source - projects become bigger, better, and more creative than they ever could if they live and die on one person’s computer. Four people have fixed bugs or typos in my repo, which I in turn built off the back of <a href="https://github.com/rasmusab">Rasmus’s</a>. Someone has already ported beepr into <a href="https://pypi.python.org/pypi/brrr">Python</a>. The community <a href="https://twitter.com/brookLYNevery1/status/940359216480636928">shared</a> beepr with friends and colleagues they thought would like it.</p>
+<p>Hopefully, someone else who has never made a package will take this and run with it, remixing the remix until it is unrecognizable. In the wise words of the Godfather of my very first R package:</p>
+<div class="figure">
+<img src="/figs/2018-03-17-scraping-javascript-websites-in-r/gucci-nevertoolate.png" />
+
+</div>
+<p><br></p>
+</div>
