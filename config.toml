@@ -15,7 +15,7 @@ contentdir = "content"
 
 	twitter = "brooklynevery1"
 
-	enableRSS = false
+	enableRSS = true
 	enableToc = true
 
 	enableDisqus = true
