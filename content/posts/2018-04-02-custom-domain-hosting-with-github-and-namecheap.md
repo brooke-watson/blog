@@ -27,7 +27,7 @@ Linking a website to a custom domain, it turns out, is actually only about 3 **i
 
 Having recently deployed this [blog](http://blog.brooke.science) on Netlify using a custom subdomain, I'm momentarily intimately familiar with the process. I'm writing these steps down, with screenshots, so I don't make it too complicated for myself the next time. Perhaps they will also be of use to someone else.
 
-If you already have a site hosted at yourgithubname.github.io or whatever-name.netlify.com, you're only approximately 10 minutes and 66 cents away from moving to `rstats.party`, `preposterous.accountant`, and `christina-aguilera-going-online-with-her-nails-looking-fresh.website`.
+If you already have a site hosted at yourgithubname.github.io or whatever-name.netlify.com, you're only approximately 10 minutes[<sup>1</sup>](/posts/custom-domain-hosting-with-github-and-namecheap/#footnotes) and 66 cents away from moving to `rstats.party`, `preposterous.accountant`, and `christina-aguilera-going-online-with-her-nails-looking-fresh.website`.
 
 <center>
 <iframe src="//popkey.co/m/zdjAp-thats+right-clicking-blocking/embed" width="480" height="253" frameBorder="0" scrolling="no" allowFullScreen></iframe>
@@ -64,7 +64,7 @@ If your website is hosted in Github (whether it is deployed via Github Pages, Ne
 
 I don't think this is necessary if your website is deployed via Netlify. [Netlify](http://netlify.com) is a free service that will **watch** a Github repo with a website inside of it, updating that website whenever you push passing changes to the master branch. Netlify  plays much more nicely with Hugo than Github Pages does, and allows you to have multiple Github repos connected to multiple domain names all from within the same Github account.  You ~*can*~ [deploy](https://gohugo.io/hosting-and-deployment/hosting-on-github/) a Hugo site via Github pages, but I'm not sure why anyone would. Jekyll sites, on the other hand, work like a dream with GH pages. 
 
-## Add a subdomain
+## Optional Step 4: Add a subdomain
 
 You can also add as many *subdomains* as you want to your domain: for example, blog.brooke.science is a subdomain of brooke.science. 
 
@@ -105,3 +105,7 @@ Maybe you haven't yet built a website or blog, but the idea of owning [tinytinym
 My opinionated advice, as an R user and someone who has used both Jekyll and Hugo in the past, is to start from scratch using the `blogdown` package and a slick Hugo theme. If you've never built a website (and are more comfortable in RStudio than on the command line), I wouldn't spend any time with Jekyll at all. 
 
 If you're already up and running, this should be more than enough. Go forth and fill the internet with 💎`.diamonds` 💎. 
+
+# Footnotes 
+
+<sup>1</sup> It actually may take ~30 minutes after you've configured your new domain for all of your content to be shifted over. Be patient - your old domain still works! In fact, your old website will continue to be a valid address even after your new domain is fully functioning. If, after taking a break from your computer, some of your pages still aren't working, troubleshoot by checking the baseURL in your config file and making sure all your paths are relative.
