@@ -1,5 +1,5 @@
 # Site settings
-baseurl = "http://blog.brooke.science/"
+baseurl = "https://blog.brooke.science/"
 languageCode = "en"
 title = "Brooke Watson"
 theme = "hugo-theme-cactus-plus"
