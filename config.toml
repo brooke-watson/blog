@@ -11,11 +11,11 @@ contentdir = "content"
 [params]
 	author = "Brooke Watson"
 	description = "Research Scientist"
-	bio = "America's Next Top Modeller at [EcoHealth Alliance.](https://www.ecohealthalliance.org/personnel/brooke-watson-2)<br> [R Lady](http://www.rladiesnyc.org), [NASA Datanaut](https://open.nasa.gov/explore/datanauts/), [LSHTM](https://www.lshtm.ac.uk/) epidemiologist, and [Meme Sommelier](http://www.twitter/com/brooklynevery1).<br> <br><h6> **[[Say hi]](mailto:hi@brooke.science)** </h6>"
+	bio = "America's Next Top Modeller at [EcoHealth Alliance.](https://www.ecohealthalliance.org/personnel/brooke-watson-2)<br> [R Lady](http://www.rladiesnyc.org), [NASA Datanaut](https://open.nasa.gov/explore/datanauts/), and [Meme Sommelier](http://www.twitter/com/brooklynevery1).<br> <br><h6> **[[Say hi]](mailto:hi@brooke.science)** </h6>"
 
 	twitter = "brooklynevery1"
 
-	enableRSS = true
+	enableRSS = false
 	enableToc = true
 
 	enableDisqus = true
@@ -46,7 +46,7 @@ contentdir = "content"
 	home = ""
 	about = ""
 	archive = ""
-	subscribe = ""
+	# subscribe = ""
 
 	olderPosts = ""
 	newerPosts = ""
@@ -66,7 +66,7 @@ contentdir = "content"
 	subtitle404 = ""
 
 	# Choose a font for the social icons in the footer. Either "mono-social" or "font-awesome"
-	iconFont = "mono-social"
+	iconFont = "font-awesome"
   # The social icons can be styled differently if you use mono as font - circle, rounded, or empty
   socialIconStyle = "circle"
 
