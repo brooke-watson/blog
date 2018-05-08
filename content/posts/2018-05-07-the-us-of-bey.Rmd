@@ -20,7 +20,7 @@ tags:
 knitr::opts_chunk$set(message = FALSE, error = FALSE, warning = FALSE)
 ```
 
-Beyoncé Knowles-Carter is an icon who needs no introduction. In her 36 years, she has become the [highest-paid](http://www.mtv.co.uk/beyonce/news/beyonce-named-highestearning-black-artist-of-all-time) black artist of all time, the most-nominated woman in [Grammy history](http://www.billboard.com/articles/events/grammys-2015/6363698/beyonce-most-grammy-nominated-woman), and the top selling artist of the last decade. _Time_ put her on the [cover](http://www.bbc.com/news/entertainment-arts-27154568) of its 100 most influential people issue. 
+Beyoncé Knowles-Carter is an icon who needs no introduction. In her 36 years, she has become the top selling artist of the 21st century, [highest-paid](http://www.mtv.co.uk/beyonce/news/beyonce-named-highestearning-black-artist-of-all-time) black artist of all time, the most-nominated woman in [Grammy history](http://www.billboard.com/articles/events/grammys-2015/6363698/beyonce-most-grammy-nominated-woman), and the top selling artist of the last decade. _Time_ put her on the [cover](http://www.bbc.com/news/entertainment-arts-27154568) of its 100 most influential people issue. 
 
 ![](https://img.buzzfeed.com/buzzfeed-static/static/2018-04/16/13/asset/buzzfeed-prod-web-07/sub-buzz-22632-1523900807-1.jpg?downsize=1040:*&output-format=auto&output-quality=auto)
 
@@ -45,9 +45,9 @@ library(scales)
 library(babynames)
 library(bplots) # install_github("brooke-watson/bplots")
 
-wrap90 <- scales::wrap_format(90)
 
 ```
+
 # About the data
 
 The United States Social Security Administration releases yearly summaries of baby names reported on Social Security card applications, dating back to 1910 and sorted by sex. The data is aggregated at both the national and state level. **To safeguard privacy, the SSA restricts the list of names to those with at least 5 occurrences per year, per sex.** At the state level, these same restrictions apply, so if less than 5 names of either sex are reported in a given year and state, the sum of the state totals will be less than the national total. 
@@ -73,36 +73,25 @@ g1 <- yonces %>%
     filter(name == "Beyonce") %>% 
     ggplot(., aes(x = year, y = n)) +
     geom_line(aes(col = "#e41a1c")) + 
-
     ggtitle("Birth of a Beyhive") +
     labs(subtitle = "Children named Beyoncé born in the US, 1910-2015", 
          caption = wrap95("Data from the Social Security Administration. To protect privacy and prevent identification, if a name has less than 5 occurrences for a year of birth, those names are not recorded. Thus, Beyoncé Knowles' birth (in 1981) is not actually included in the public SSA data."), y = "Annual Beyoncés born in the US") +
-    # scale_color_manual(values = "#e41a1c") +
-  annotate("label", x = 1965, y = 30, label = "Beyoncé Knowles", family = "Raleway") +
+  annotate("text", x = 1965, y = 30, label = "Beyoncé Knowles", family = "Raleway") +
     theme_raleway() + 
     theme_fancy() + 
+  xlim(1910, 2015) + 
   geom_point(aes(x = 1981, y = 1, col = "#e41a1c"))  + 
   guides(col = F)
 
-  
+
+
 g1
   
 ```
 
 The peak of the Beyoncé name wave came in 2001, followed by a much smaller splintering of Alternative Yoncés in the early 2000s. How does this map onto Queen Bey's discography?  
 
-```{r}
-
-g2 <-  yonces %>% 
-    ggplot(., aes(x = year, y = n)) +
-    geom_line(aes(col = name)) + 
-    xlim(1995, 2015) + 
-    ggtitle("Yoncés through the years") +
-    labs(subtitle = "Children born in the US, 1995-2015") + 
-    scale_color_manual(values = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf", "#999999", "#999999")) +
-    theme_raleway() + 
-    theme_fancy()
-
+```{r} 
 album_join <-  data_frame(name = "Beyonce", year = c(1998, 1999, 2001, 2003, 2006, 2008, 2011, 2013), album = c("Destiny's Child", "The Writing's on the Wall", "Survivor", "Dangerously in Love", "B'Day", "I Am... Sasha Fierce", "4", "Beyoncé"))
 
 yonces <- 
@@ -114,22 +103,23 @@ g2 <- yonces %>%
    ggplot(., aes(x = year, y = n)) +
     geom_line(aes(col = name)) + 
     xlim(1995, 2015) + 
-    ggtitle("Yoncés through the years, 1995-2015") +
+    ggtitle("Destiny's Children") +
     # labs(subtitle = "Children born in the US, 1995-2015") + 
     scale_color_manual(values = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf", "#999999", "#999999")) +
     theme_raleway() + 
     theme_fancy() +   
-  geom_point(data = g1annot, aes(x = year, y = n, col = NULL, label = album)) + 
-        ggrepel::geom_label_repel(data = g1annot, aes(x = year, y = n, label = album), 
+  geom_point(data = filter(yonces, !is.na(album)), aes(col = NULL, label = album)) + 
+        ggrepel::geom_label_repel(aes(x = year, y = n, label = album), 
                                  family = "Raleway") + 
-    labs(caption = wrap90("Naming a child Beyoncé reached it's peak in 2001, around the release of the Destiny's Child album 'Survivor'. This is the same year that saw the first cohort of Alternative Yoncés, such as Ceyonce and Keyonce."), y = "Annual Yoncés born in the US")
+    labs(subtitle = "Children born in the US whose names ended in 'yonce' \n vs Destiny's Child and Beyoncé albums, 1995-2015", caption = wrap90("Naming a child Beyoncé reached it's peak in 2001, around the release of the Destiny's Child album 'Survivor'. 2000 saw the first cohort of Alternative Yoncés."), y = "Annual Yoncés born in the US")
 
 g2
+ggsave(filename = "albums.png", width = 8, height = 6)
 ```
 
 Somewhat surprisingly, the trend of naming a child Beyoncé peaked quickly in 2001, around the release of the Destiny's Child album *Survivor*. This was before her solo career began, let alone before she took over the world.
 
-Perhaps in 2001, it was easier to think of "*Beyoncé*" as merely a beautiful, unique name that was growing in familiarity on local radios - much like the names [Belcardis](https://en.wikipedia.org/wiki/Cardi_B) or  [Normani](https://en.wikipedia.org/wiki/Normani) may be today. Certainly for the hundreds of parents of Keyonce, Veyonce and Deyonce, the name might've been little more than a nice set of syllables, made even more unique for their own newborns with a different leading consonant. 
+Perhaps in 2001, it was easier to think of "*Beyoncé*" as merely a beautiful, unique name that was growing in familiarity on local radios - much like the names [Belcardis](https://en.wikipedia.org/wiki/Cardi_B) or  [Normani](https://en.wikipedia.org/wiki/Normani) may be today. Certainly for the hundreds of parents of Keyonce, Veyonce and Deyonce, the name might've been little more than a nice set of syllables that could be made even more unique for their own newborns with a different leading consonant. 
 
 ```{r}
 fig1 <- yonces %>% 
@@ -146,40 +136,45 @@ ggplot(fig1, aes(x = reorder(name, n), y = n,
   ylim(-200, 2500) +
   geom_text(data = filter(fig1, sex == "F"), aes(reorder(name, n), y = n, label = n), hjust = -.5) +
   geom_text(data = filter(fig1, sex != "F"), aes(reorder(name, n), y = n, label = -n), hjust = 1.5) +
-  labs(x = "count", y = "n") + 
+  labs(x = "", y = "n") + 
   ggtitle("American Yoncés, 1995-2015.") +
   labs(caption = wrap90("Data from the Social Security Administration. To protect privacy and prevent identification, if a name has less than 5 occurrences for a year of birth, those names are not recorded.")) + 
   theme_fancy()
 
 ```
 
+# The US of Bey: Statewide Distribution of Beyoncés
 
+We've looked at how these patterns vary over time. But how do they vary spatially? Are there more Beyoncés in Texas, her home state? Did the south catch on earlier than the north, or the east before the west? 
+
+Because of the privacy protections around public SSA data, some of the data gets lost when disaggregated at the state-wide level. However, there are still some name patterns that can be picked up in the peak years. 
 
 ```{r}
-library(tidyverse)
-library(stringr)
-
 # download baby names by state file from ssa.gov 
-download.file("https://www.ssa.gov/oact/babynames/state/namesbystate.zip", destfile = "nbs.zip")
-
+if(!dir.exists("") & !file.exists("nbs.zip")) {
+  download.file("https://www.ssa.gov/oact/babynames/state/namesbystate.zip", destfile = "nbs.zip")
+} 
 # unzip into new directory
-unzip("nbs.zip", exdir = here::here("lol/"))
-
-# get list of files and lapply read_csv over them  
-files <- paste0("namesbystate/", list.files("namesbystate", pattern = "*.TXT"))
+if(!dir.exists("nbs")) { 
+  unzip("nbs.zip", exdir = "nbs")
+}
+# get list of files 
+files <- paste0("nbs/", list.files("nbs", pattern = "*.TXT"))
 
 # read all the files in as comma-separated values 
-bystate <- lapply(files, function(x) {
+df <- lapply(files, function(x) {
     readr::read_csv(x, col_names = c("state", "sex", "year", "name", "n"))})
-df <- bind_rows(bystate)
+df <- bind_rows(df)
 
 # filter out just the yonces by state 
 ybs <- df %>% 
     filter(str_detect(name, "yonce") == TRUE) 
+```
 
-tabyl(ybs, name) # they're all Beyonce. go figure. 
+```{r}
+knitr::kable(tabyl(ybs$name)) # they're all Beyonce. go figure. 
 
-tabyl(ybs, year) # and they're all between 1999 and 2013. 
+knitr::kable(tabyl(ybs, year)) # and they're all between 1999 and 2013. 
 ```
 
 ```{r}
@@ -191,24 +186,11 @@ big <- df %>%
     filter(year >= 1995 & year < 2016)
 
 # join both to fill the empty state-year combos with NAs 
-ybs <- full_join(yonces_by_state, big, by = c("state", "year"))
+ybs <- full_join(ybs, big, by = c("state", "year"))
 
-#------------------------------------------------------------
+```
 
-#  (•_•)
-# <)   )╯all the single ladies
-#  /   \ 
-# 
-#  (•_•)
-# \(   (> all the single ladies
-#  /   \
-#       
-# (•_•)
-# <)   )╯oh oh oh
-#  /  \
-
-#-------------------------------------------------------------
-
+```{r}
 wrap120 = wrap_format(120)
 
 # https://github.com/ChuliangXiao/tidytuesday/blob/master/Week05/Week05.Rmd
@@ -238,8 +220,6 @@ g <- ggplot() +
         plot.subtitle = element_text(size = 12, hjust = .5, vjust = -2, color = "#4e4d47"), 
         axis.text = element_blank()
     ) + theme_fancy()
-
-g
 
 gganimate::gganimate(g, "USofB2.gif", ani.width = 560, ani.height = 360)
 ```
