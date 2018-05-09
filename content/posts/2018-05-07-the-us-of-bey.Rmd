@@ -33,7 +33,7 @@ Thanks to the `babynames` package in R - along with some additional open data fr
 
 
 
-![](/figs/2018-05-06-us-of-bey/alt-yonces.gif)
+![](/figs/2018-05-06-us-of-bey/USofBey.gif)
 
 
 ```{r}
@@ -119,7 +119,38 @@ ggsave(filename = "albums.png", width = 8, height = 6)
 
 Somewhat surprisingly, the trend of naming a child Beyoncé peaked quickly in 2001, around the release of the Destiny's Child album *Survivor*. This was before her solo career began, let alone before she took over the world.
 
-Perhaps in 2001, it was easier to think of "*Beyoncé*" as merely a beautiful, unique name that was growing in familiarity on local radios - much like the names [Belcardis](https://en.wikipedia.org/wiki/Cardi_B) or  [Normani](https://en.wikipedia.org/wiki/Normani) may be today. Certainly for the hundreds of parents of Keyonce, Veyonce and Deyonce, the name might've been little more than a nice set of syllables that could be made even more unique for their own newborns with a different leading consonant. 
+Perhaps in 2001, it was easier to think of "*Beyoncé*" as merely a beautiful, unique name that was growing in familiarity on local radios - much like the names [Belcardis](https://en.wikipedia.org/wiki/Cardi_B) or  [Normani](https://en.wikipedia.org/wiki/Normani) may be today.
+
+# Alternative Yoncés
+
+By 2001, names that *rhyme* with Beyoncé were also picking up steam. They get massively overshadowed in the larger graph, but there are quite a few of these Alternate Yoncés, and the cohorts persist over several years before puttering out around 2007. But which ones are most popular? 
+```{r, eval}
+library(viridis)
+
+g1b <- yonces %>% 
+    filter(name != "Beyonce") %>% 
+    ggplot(., aes(x = reorder(name, n), y = n, fill = cumsum(n), frame = year)) +
+    geom_col(aes(cumulative = TRUE), width = .2)   + 
+    # xlim(1995, 2015) + 
+    coord_flip() + 
+    ggtitle("Cumulative Growth of Alternative Yoncés: ") +
+    scale_fill_viridis(option = "C") + 
+    # scale_fill_manual(values = c("#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf", "#999999")) +
+    theme_raleway(plot_title_size = 26, base_size = 16, axis_text_size = 16, strip_text_size = 16) + 
+    theme_fancy() +
+    theme(axis.title.y = element_blank()) + 
+    guides(fill=guide_legend(title="Total"))
+
+gganimate::gganimate(g1b, "../figs/2018-05-06-us-of-bey/alt-yonces.gif", ani.width = 800, ani.height = 600)
+
+```
+
+
+
+
+
+
+Certainly for the hundreds of parents of Keyonce, Veyonce and Deyonce, the name might've been little more than a nice set of syllables that could be made even more unique for their own newborns with a different leading consonant. 
 
 ```{r}
 fig1 <- yonces %>% 
@@ -143,6 +174,10 @@ ggplot(fig1, aes(x = reorder(name, n), y = n,
 
 ```
 
+What of those seven Deyonces? 
+
+
+
 # The US of Bey: Statewide Distribution of Beyoncés
 
 We've looked at how these patterns vary over time. But how do they vary spatially? Are there more Beyoncés in Texas, her home state? Did the south catch on earlier than the north, or the east before the west? 
@@ -151,9 +186,10 @@ Because of the privacy protections around public SSA data, some of the data gets
 
 ```{r}
 # download baby names by state file from ssa.gov 
-if(!dir.exists("") & !file.exists("nbs.zip")) {
+if(!dir.exists("nbs") & !file.exists("nbs.zip")) {
   download.file("https://www.ssa.gov/oact/babynames/state/namesbystate.zip", destfile = "nbs.zip")
 } 
+
 # unzip into new directory
 if(!dir.exists("nbs")) { 
   unzip("nbs.zip", exdir = "nbs")
@@ -172,14 +208,17 @@ ybs <- df %>%
 ```
 
 ```{r}
-knitr::kable(tabyl(ybs$name)) # they're all Beyonce. go figure. 
+unique(ybs$name) # they're all Beyonce. go figure. 
 
-knitr::kable(tabyl(ybs, year)) # and they're all between 1999 and 2013. 
+sort(unique(ybs$year)) # and they're all between 1999 and 2013. 
 ```
 
-```{r}
+Unsurprisingly, all of the less common variants - Keyonce, Deyonce, and Breyonce - are hidden in the state-level data to protect privacy. However, there are enough Beyoncés left to pick up some patterns across states.
 
-# get a data frame of all the state-year combos
+
+```{r}
+# get a data frame of all the state-year combos to fill in missing NAs
+# starting in 1995 and ending in 2015 to match with the earlier data 
 big <- df %>% 
     select(state, year) %>% 
     unique() %>% 
@@ -193,8 +232,6 @@ ybs <- full_join(ybs, big, by = c("state", "year"))
 ```{r}
 wrap120 = wrap_format(120)
 
-# https://github.com/ChuliangXiao/tidytuesday/blob/master/Week05/Week05.Rmd
-
 state_lookup = data_frame(state = state.abb, region = state.name)
 
 usa_map <- map_data("state") 
@@ -207,8 +244,7 @@ state_map <- ybs %>%
 
 g <- ggplot() + 
     geom_polygon(data = state_map, aes(fill = n, x = long, y = lat, group = group, frame = year), 
-                 color = "black", size=0, alpha=0.9) + 
-    theme_void() + 
+                 color = "black", size=0, alpha=0.9) +
     scale_fill_gradient(low = "lightblue", high = "darkblue", na.value = "lightgray", guide = "legend") + 
     ggtitle( "The US of Bey:" ) +
     labs(subtitle = paste0("Children named Beyonce born in each state, 1995-2015"), 
@@ -221,7 +257,7 @@ g <- ggplot() +
         axis.text = element_blank()
     ) + theme_fancy()
 
-gganimate::gganimate(g, "USofB2.gif", ani.width = 560, ani.height = 360)
+gganimate::gganimate(g, "../figs/2018-05-06-us-of-bey/USofBey.gif", ani.width = 560, ani.height = 360)
 ```
 
 
