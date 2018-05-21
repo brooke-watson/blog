@@ -1,0 +1,200 @@
+ST-99-1  State Population Estimates and Demographic Components of Population Change:
+         July 1, 1998 to July 1, 1999
+  
+The documentation is located at the end of the data file.  Two additional components 
+of population change--net federal movement and residual--are not included in this table.
+  
+Source:  Population Estimates Program, Population Division, U.S. Census Bureau, Washington, DC 20233
+Contact: Statistical Information Staff, Population Division, U.S. Census Bureau (301-457-2422)
+  
+Internet Release Date:  December 29, 1999
+
+                                                 --------------------------7/1/98 to 7/1/99-------------------------- 
+                              7/1/99      7/1/98                                                       Net        Net
+                          Population  Population    Numeric    Percent                       International   Domestic
+Area Name                 (Estimate)  (Estimate)     Change     Change     Births     Deaths     Migration  Migration
+------------------------ ----------- ----------- ---------- ---------- ---------- ---------- ------------- ----------
+United States              272690813   270248003    2442810        0.9    3938472    2344573        851541          0
+Northeast                   51829962    51685676     144286        0.3     685738     475391        183871    -244668
+   New England              13495933    13428630      67303        0.5     172903     122292         27339      -7621
+   Middle Atlantic          38334029    38257046      76983        0.2     512835     353099        156532    -237047
+Midwest                     63242284    62950532     291752        0.5     880492     573030         98956    -110980
+   East North Central       44442146    44257498     184648        0.4     622115     398409         74658    -110754
+   West North Central       18800138    18693034     107104        0.6     258377     174621         24298       -226
+South                       96468455    95348823    1119632        1.2    1421264     860469        243917     310928
+   South Atlantic           49560021    48926635     633386        1.3     688451     451824        146011     248237
+   East South Central       16582841    16469361     113480        0.7     236856     163268          8865      31624
+   West South Central       30325593    29952827     372766        1.2     495957     245377         89041      31067
+West                        61150112    60262972     887140        1.5     950978     435683        324797      44720
+   Mountain                 17127479    16804614     322865        1.9     276166     127102         41137     128210
+   Pacific                  44022633    43458358     564275        1.3     674812     308581        283660     -83490
+Alabama                      4369862     4351037      18825        0.4      62047      43831          1590       -611
+Alaska                        619500      615205       4295        0.7       9913       2614           963      -4076
+Arizona                      4778332     4667277     111055        2.4      78120      38971         11634      59196
+Arkansas                     2551373     2538202      13171        0.5      36882      27454          1330       2422
+California                  33145121    32682794     462327        1.4     522160     225723        248490     -80952
+Colorado                     4056133     3968967      87166        2.2      59709      26853          8639      44614
+Connecticut                  3282031     3272563       9468        0.3      43499      29991          8259     -11447
+Delaware                      753538      744066       9472        1.3      10591       6677          1160       4512
+District of Columbia          519000      521426      -2426       -0.5       7668       5893          2941      -7227
+Florida                     15111244    14908230     203014        1.4     195784     159752         80463      86511
+Georgia                      7788240     7636522     151718        2.0     122385      60930         14776      73084
+Hawaii                       1185497     1190472      -4975       -0.4      17548       7431          4721     -20112
+Idaho                        1251700     1230923      20777        1.7      19414       9212          2866       7457
+Illinois                    12128370    12069774      58596        0.5     182732     105779         47172     -65930
+Indiana                      5942901     5907617      35284        0.6      85266      53781          4801       -659
+Iowa                         2869413     2861025       8388        0.3      37371      28750          3398      -3008
+Kansas                       2654052     2638667      15385        0.6      38463      24209          4110      -2915
+Kentucky                     3960825     3934310      26515        0.7      54438      38072          2339       8090
+Louisiana                    4372035     4362758       9277        0.2      66740      40555          2267     -19050
+Maine                        1253040     1247554       5486        0.4      13793      12164           527       3611
+Maryland                     5171634     5130072      41562        0.8      71782      42690         17174      -4472
+Massachusetts                6175169     6144407      30762        0.5      81719      55894         14939      -8656
+Michigan                     9863775     9820231      43544        0.4     133852      85878         13576     -16966
+Minnesota                    4775508     4726411      49097        1.0      65332      37813          7877      13743
+Mississippi                  2768619     2751335      17284        0.6      42885      27820           791       1227
+Missouri                     5468338     5437562      30776        0.6      75376      55413          5266       5414
+Montana                       882779      879533       3246        0.4      10814       8066           231        249
+Nebraska                     1666028     1660772       5256        0.3      23592      15437          2003      -4627
+Nevada                       1809253     1743772      65481        3.8      28727      14653          9097      40912
+New Hampshire                1201134     1185823      15311        1.3      14660       9564          1133       9185
+New Jersey                   8143412     8095542      47870        0.6     111487      71578         39749     -31294
+New Mexico                   1739844     1733535       6309        0.4      27855      13550          4170     -12554
+New York                    18196601    18159175      37426        0.2     255508     154274        103745    -167818
+North Carolina               7650789     7545828     104961        1.4     111720      68064          8261      52806
+North Dakota                  633666      637808      -4142       -0.6       7943       6015           854      -7051
+Ohio                        11256654    11237752      18902        0.2     152744     106354          6476     -32671
+Oklahoma                     3358044     3339478      18566        0.6      49424      34074          3510        224
+Oregon                       3316154     3282055      34099        1.0      45354      29587          8126      10592
+Pennsylvania                11994016    12002329      -8313       -0.1     145840     127247         13038     -37935
+Rhode Island                  990819      987704       3115        0.3      12628       9769          1553      -1029
+South Carolina               3885736     3839578      46158        1.2      53894      34966          2458      24995
+South Dakota                  733133      730789       2344        0.3      10300       6984           790      -1782
+Tennessee                    5483535     5432679      50856        0.9      77486      53545          4145      22918
+Texas                       20044141    19712389     331752        1.7     342911     143294         81934      47471
+Utah                         2129836     2100562      29274        1.4      45261      11915          4330      -8657
+Vermont                       593740      590579       3161        0.5       6604       4910           928        715
+Virginia                     6872912     6789225      83687        1.2      94189      53825         18540      24326
+Washington                   5756361     5687832      68529        1.2      79837      43226         21360      11058
+West Virginia                1806928     1811688      -4760       -0.3      20438      19027           238      -6298
+Wisconsin                    5250446     5222124      28322        0.5      67521      46617          2633       5472
+Wyoming                       479602      480045       -443       -0.1       6266       3882           170      -3007
+
+Documentation Notes for the December, 1999 release of July 1, 1999 
+state population estimates.
+
+These population estimates incorporate revisions of estimates
+from previous years and the results of special censuses and test
+censuses conducted by the Census Bureau.
+
+4/1/90 Census Population - The revised April 1, 1990 Census 
+population of an area.
+
+Births - Total number of live births occurring to
+residents of an area during the period, as reported from the
+Census Bureau's Federal-State Cooperative Program for Population
+Estimates (FSCPE) and the National Center for Health Statistics.
+
+Census Regions and Divisions - The Census Bureau delineates
+two sets of sub-national areas that are formed of states.
+This two-tiered system of areas consists of 9 census divisions
+nested in 4 census regions.  The Northeast region includes the New
+England division: Connecticut, Maine, Massachusetts, New
+Hampshire, Rhode Island, and Vermont; and the Middle Atlantic
+division: New Jersey, New York, and Pennsylvania.  The Midwest
+region includes the East North Central division: Illinois,
+Indiana, Michigan, Ohio, and Wisconsin; and the West North
+Central division: Iowa, Kansas, Minnesota, Missouri, Nebraska,
+North Dakota, and South Dakota.  The South region includes the
+South Atlantic division: Delaware, District of Columbia, Florida,
+Georgia, Maryland, North Carolina, South Carolina, Virginia, West
+Virginia; the East South Central division: Alabama, Kentucky,
+Mississippi, and Tennessee; and the West South Central division:
+Arkansas, Louisiana, Oklahoma, and Texas.  The West region
+includes the Mountain division: Arizona, Colorado, Idaho,
+Montana, Nevada, New Mexico, Utah, and Wyoming; and the Pacific
+division: Alaska, California, Hawaii, Oregon, and Washington.
+
+Deaths - Total number of deaths occurring within the
+resident population of an area during the period, as reported by
+the Census Bureau's Federal-State Cooperative Program for
+Population Estimates (FSCPE) and the National Center for Health
+Statistics.
+
+Demographic Components of Change - The demographic components of
+population change consist of births, deaths, net domestic
+migration, and net international migration.
+
+FIPS State Code - Two digit Federal Information Processing Standards 
+(FIPS) codes uniquely identify each state and state equivalent. They 
+are issued by the National Institute of Standards and Technology (NIST) 
+of the U.S. Department of Commerce.
+
+Natural Increase - births minus deaths in an area.  The rate of 
+natural increase expresses natural increase during a time period
+as a percentage of an area's initial population.
+
+Net Domestic Migration - the difference between
+domestic in-migration to an area and domestic
+out-migration from it during the period.  Domestic in-migration and
+out-migration consist of moves where both the origins and
+destinations are within the United States (excluding Puerto
+Rico). The net domestic migration rate expresses net domestic 
+migration during a time period as a percentage of an area's 
+initial population.
+
+Net Federal Movement - Net Federal movement is the difference
+between the movement of federal employees (both military and
+civilian) and their dependents into and out of the United States
+(excluding Puerto Rico) during the period.
+
+Net International Migration - the difference
+between migration to an area from outside the
+United States (immigration) and migration from the area to
+outside the United States (emigration) during the period.  For
+the purposes of these population estimates, the geographic extent
+of the United States is defined as excluding Puerto Rico.
+Net international migration includes: (1) legal
+immigration to the United States as reported by the Immigration
+and Naturalization Service, (2) an estimate of net undocumented
+immigration from abroad, (3) an estimate of emigration from the
+United States, and (4) net movement between Puerto Rico and the
+(balance of) the United States.  The net international migration
+rate expresses net international migration during a time period
+as a percentage of an area's initial population.
+
+Numeric Population Change - the difference between the population
+of an area at the beginning and end of a time period.
+
+Percent Change- the difference between the population of an area
+at the beginning and end of a time period, expressed as a percentage
+of the beginning population.
+
+Population (Estimate) -  The estimated population is the computed
+number of persons living in the area (resident population) as of
+July 1.  The estimated population is calculated from a
+demographic components of change model that incorporates
+information on natural change (births and deaths) and net
+migration (net domestic migration and net movement from abroad)
+that has occurred in the area since the reference date of the
+1990 census.  Additional information on the methodology used to
+produce these population estimates is contained in Current
+Population Reports P25-1127 and at our Internet site at:
+https://www.census.gov/population/www/methodep.html
+
+Resident Population - These population estimates are for the
+resident population.  The resident population of a state includes
+all residents (both civilian and Armed Forces) living in the
+state.  The geographic universe for the resident population is
+the 50 states and the District of Columbia.  It excludes Puerto
+Rico and outlying areas under United States jurisdiction.  The
+resident population excludes U.S. citizens residing abroad.
+
+Residual - The subnational estimates are constrained to sum to an
+independently derived estimate of the national population.  The
+residual is the difference between an area's population as
+estimated by the subnational population estimation procedure
+before and after imposing this constraint.  The residual is not a
+demographic component of population change; rather, it is a
+statistical artifact of the procedures employed to produce the
+estimates.  
