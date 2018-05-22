@@ -14,14 +14,14 @@ tags:
   - maps
   - beyonce
 description: "Mapping nearly 2000 baby Beyoncés born in the United States."
----
 
+---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message = FALSE, error = FALSE, warning = FALSE)
 ```
 
-![](/figs/2018-05-20-us-of-bey/bey.png)
+![](/figs/2018-05-20-the-us-of-bey/bey.png)
 
 ###### We stan a legend.
 
@@ -42,7 +42,7 @@ Like other legends (Martin Luther, [Barack Obama](https://www.nbcnews.com/storyl
 Thanks to the `babynames` package in R - along with some additional open data from the Social Security Administration - it's pretty easy to answer the first few questions. For the last, we have [Humans of New York](https://www.boredpanda.com/celebrity-names-girl-named-beyonce-humans-of-new-york/). 
 
 
-![](/figs/2018-05-20-us-of-bey/USofBey.gif)
+![](/figs/2018-05-20-the-us-of-bey/USofBey.gif)
 
 This post looks at baby name trends in the US, focusing on babies named after Queen Bey. It includes all the data and code necessary to generate these graphs and maps. Note that many of the plots use themes from my own bundle of ggplot convenience functions on Github, and will not work without running `devtools::install_github("brooke-watson/bplots")` and installing the [Raleway](https://fonts.google.com/specimen/Raleway) font from Google. However, these functions (`theme_raleway()` and `theme_fancy()`, for example) can be omitted or approximated with other calls to `theme()`. 
 
@@ -65,7 +65,7 @@ The United States Social Security Administration releases yearly summaries of ba
 This is why no Beyoncés show up in the data in 1981, the year Queen Bey was born. 
 
 <center>
-<img src="/figs/2018-05-20-us-of-bey/soldier.gif", alt = "Where they at? Where they at?", style="width:420px;"></img>
+<img src="/figs/2018-05-20-the-us-of-bey/soldier.gif", alt = "Where they at? Where they at?", style="width:420px;"></img>
 </center>
 
 
@@ -98,11 +98,11 @@ g1 <- yonces %>%
   geom_point(aes(x = 1981, y = 1, col = "#e41a1c"))  + 
   guides(col = F)
 
-ggsave(filename = here::here("content/figs/2018-05-20-us-of-bey/beyhive.png"), width = 8, height = 6)
+ggsave(filename = here::here("content/figs/2018-05-20-the-us-of-bey/beyhive.png"), width = 8, height = 6)
   
 ```
 
-![](/figs/2018-05-20-us-of-bey/beyhive.png)
+![](/figs/2018-05-20-the-us-of-bey/beyhive.png)
 
 The peak of the Beyoncé name wave came in 2001, followed by a much smaller splintering of Alternative Yoncés in the early 2000s. How does this map onto Queen Bey's discography?  
 
@@ -128,11 +128,11 @@ g2 <- yonces %>%
                                  family = "Raleway") + 
     labs(subtitle = "Children born in the US whose names ended in 'yonce' \n vs Destiny's Child and Beyoncé albums, 1995-2015", caption = wrap90("Naming a child Beyoncé reached it's peak in 2001, around the release of the Destiny's Child album 'Survivor'. 2000 saw the first cohort of Alternative Yoncés."), y = "Annual Yoncés born in the US")
 
-ggsave(filename = here::here("content/figs/2018-05-20-us-of-bey/albums.png"), width = 8, height = 6)
+ggsave(filename = here::here("content/figs/2018-05-20-the-us-of-bey/albums.png"), width = 8, height = 6)
 
 ```
 
-![](/figs/2018-05-20-us-of-bey/albums.png)
+![](/figs/2018-05-20-the-us-of-bey/albums.png)
 
 Somewhat surprisingly, the trend of naming a child Beyoncé peaked quickly in 2001, around the release of the Destiny's Child album *Survivor*. This was before her solo career began, let alone before she took over the world. She's only grown in prominence since then - why the decrease in BaBeys<sup>[1](#notes)</sup>? 
 
@@ -162,11 +162,11 @@ g1b <- yonces %>%
     theme(axis.title.y = element_blank()) + 
     guides(fill=guide_legend(title="Total"))
 
-gganimate::gganimate(g1b, "../figs/2018-05-20-us-of-bey/alt-yonces.gif", ani.width = 800, ani.height = 600)
+gganimate::gganimate(g1b, "../figs/2018-05-20-the-us-of-bey/alt-yonces.gif", ani.width = 800, ani.height = 600)
 
 ```
 
-![](/figs/2018-05-20-us-of-bey/alt-yonces.gif)
+![](/figs/2018-05-20-the-us-of-bey/alt-yonces.gif)
 
 Perhaps the hundreds of parents of Deyonce, Veyonce and [Keyonce](https://www.youtube.com/watch?v=fImoDuCsjNQ) saw the approaching Beyoncé wave, and decided to make the set of syllables even more unique for their own newborns with a different leading consonant. Bonus points for the parents of those seven male Deyonces - innovation is born from connecting the dots that others won't or can't, and the bold creativity in these families is huge. 
 
@@ -190,11 +190,11 @@ g3 <- ggplot(fig1, aes(x = reorder(name, n), y = n,
   labs(caption = wrap90("Data from the Social Security Administration. To protect privacy and prevent identification, if a name has less than 5 occurrences for a year of birth, those names are not recorded.")) + 
   theme_fancy()
 
-ggsave(filename = here::here("content/figs/2018-05-20-us-of-bey/alt-yonces-still.png"), width = 8, height = 6)
+ggsave(filename = here::here("content/figs/2018-05-20-the-us-of-bey/alt-yonces-still.png"), width = 8, height = 6)
 
 ```
 
-![](/figs/2018-05-20-us-of-bey/alt-yonces-still.png)
+![](/figs/2018-05-20-the-us-of-bey/alt-yonces-still.png)
 
 # The US of Bey
 
@@ -275,11 +275,17 @@ g <- ggplot() +
         axis.text = element_blank()
     ) + theme_fancy()
 
-gganimate::gganimate(g, "../figs/2018-05-20-us-of-bey/USofBey.gif", ani.width = 800, ani.height = 600, interval = .5)
+gganimate::gganimate(g, "../figs/2018-05-20-the-us-of-bey/USofBey.gif", ani.width = 800, ani.height = 600, interval = .5)
 
 ```
 
-![](/figs/2018-05-20-us-of-bey/USofBey.gif)
+```{r}
+yonces %>% 
+  filter(name == "Beyonce")
+```
+
+
+![](/figs/2018-05-20-the-us-of-bey/USofBey.gif)
 
 In state-wide trends over time, Texas pops out. It would be nice to believe that this is because Houston stans its hometown legend, but it's most likely because of its large population size. We see California, New York, and Florida stand out as well, as well as states with large cities, like Illinois and Georgia. 
 
@@ -290,10 +296,10 @@ To really look at the difference in rates, we have to standardize the data. To c
 
 # if the population by state data has not been generated yet, run the file that generates it 
 # if it has, load the data into memory 
-if(!file.exists(here::here("content/data/2018-05-20-us-of-bey/population_by_state.RDS"))) {
-  source(here:here("content/R/2018-05-20-us-of-bey/get_pop_data.R"))
+if(!file.exists(here::here("content/data/2018-05-20-the-us-of-bey/population_by_state.RDS"))) {
+  source(here:here("content/R/2018-05-20-the-us-of-bey/get_pop_data.R"))
 } else {
-    nbipop <- readRDS(here::here("content/data/2018-05-20-us-of-bey/population_by_state.RDS"))
+    nbipop <- readRDS(here::here("content/data/2018-05-20-the-us-of-bey/population_by_state.RDS"))
     }
 
 # combine with the state pop to plot the normalized map 
@@ -320,11 +326,11 @@ g <- ggplot() +
         axis.text = element_blank()
     ) + theme_fancy()
 
-gganimate::gganimate(g, here::here("content/figs/2018-05-20-us-of-bey/USofBey_normalized.gif"), ani.width = 800, ani.height = 600, interval = .5)
+gganimate::gganimate(g, here::here("content/figs/2018-05-20-the-us-of-bey/USofBey_normalized.gif"), ani.width = 800, ani.height = 600, interval = .5)
 
 ```
 
-![](/figs/2018-05-20-us-of-bey/USofBey_normalized.gif)
+![](/figs/2018-05-20-the-us-of-bey/USofBey_normalized.gif)
 
 This metric isn't perfect - annual births and total population are certainly correlated within a state, but there is some variance. A better denominator would be the number of babies born in each state each year as my denominator, rather than the whole population. This reflects the proportion of Bey's in a birth cohort, rather than in the entire population **BPM (Beyoncés per Million).**
 
@@ -364,11 +370,11 @@ g <- ggplot() +
         axis.text = element_blank()
     ) + theme_fancy()
 
-gganimate::gganimate(g, "../figs/2018-05-20-us-of-bey/USofBey_birth_cohort.gif", ani.width = 800, ani.height = 600, interval = .5)
+gganimate::gganimate(g, "../figs/2018-05-20-the-us-of-bey/USofBey_birth_cohort.gif", ani.width = 800, ani.height = 600, interval = .5)
 
 ```
 
-![](/figs/2018-05-20-us-of-bey/USofBey_birth_cohort.gif)
+![](/figs/2018-05-20-the-us-of-bey/USofBey_birth_cohort.gif)
 
 
 0.084% of children born in Mississippi in 2001 were named Beyoncé! That's not a ton, but it's more than I would've expected. Those kids are juniors and seniors in high school now, carrying the weight of *Lemonade* on their shoulders. My fondest congratulations to all of 2018's Beyoncé grads. 
@@ -389,11 +395,11 @@ if(!exists("statebabynames")) {
   data(statebabynames::statebabynames) # load data if not loaded already 
 }
 
-statebabynames::map_babynames(nam = "Brooke", filename = here::here("content/figs/2018-05-20-us-of-bey/Brooke.gif"), start_year = 1950, stop_year = 2016)
+statebabynames::map_babynames(nam = "Brooke", filename = here::here("content/figs/2018-05-20-the-us-of-bey/Brooke.gif"), start_year = 1950, stop_year = 2016)
 
 ```
 
-![](/figs/2018-05-20-us-of-bey/Brooke.gif)
+![](/figs/2018-05-20-the-us-of-bey/Brooke.gif)
 
 ## Post Script
 

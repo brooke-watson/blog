@@ -14,12 +14,13 @@ tags:
   - maps
   - beyonce
 description: "Mapping nearly 2000 baby Beyoncés born in the United States."
+
 ---
 
 
 
 <div class="figure">
-<img src="/figs/2018-05-20-us-of-bey/bey.png" />
+<img src="/figs/2018-05-20-the-us-of-bey/bey.png" />
 
 </div>
 <div id="we-stan-a-legend." class="section level6">
@@ -33,7 +34,7 @@ description: "Mapping nearly 2000 baby Beyoncés born in the United States."
 <p>Like other legends (Martin Luther, <a href="https://www.nbcnews.com/storyline/president-obama-the-legacy/growing-barack-meet-three-boys-named-after-president-obama-n709046">Barack Obama</a>, <a href="https://www.huffingtonpost.com/2015/04/08/game-of-thrones-baby-names_n_7018504.html">Arya Stark</a>, etc.), Queen Bey’s prominance has spawned a wave of namesakes in the United States. Mrs. Knowles-Carter needs no last name to be recognized - But what of the Beyoncés who <em>do</em>? Where are they? Is the name getting more popular as her fame grows? What’s it like to be named Beyoncé in high school in 2015?</p>
 <p>Thanks to the <code>babynames</code> package in R - along with some additional open data from the Social Security Administration - it’s pretty easy to answer the first few questions. For the last, we have <a href="https://www.boredpanda.com/celebrity-names-girl-named-beyonce-humans-of-new-york/">Humans of New York</a>.</p>
 <div class="figure">
-<img src="/figs/2018-05-20-us-of-bey/USofBey.gif" />
+<img src="/figs/2018-05-20-the-us-of-bey/USofBey.gif" />
 
 </div>
 <p>This post looks at baby name trends in the US, focusing on babies named after Queen Bey. It includes all the data and code necessary to generate these graphs and maps. Note that many of the plots use themes from my own bundle of ggplot convenience functions on Github, and will not work without running <code>devtools::install_github(&quot;brooke-watson/bplots&quot;)</code> and installing the <a href="https://fonts.google.com/specimen/Raleway">Raleway</a> font from Google. However, these functions (<code>theme_raleway()</code> and <code>theme_fancy()</code>, for example) can be omitted or approximated with other calls to <code>theme()</code>.</p>
@@ -52,7 +53,7 @@ library(gganimate) # devtools::install_github(&quot;dgrtwo/gganimate&quot;)</cod
 <p>The United States Social Security Administration releases yearly summaries of baby names reported on Social Security card applications, sorted by sex, dating back to 1910. The data is aggregated at both the national and state level. <strong>To safeguard privacy, the SSA restricts the list of names to those with at least 5 occurrences per year, per sex.</strong> At the state level, these same restrictions apply, so if less than 5 (but more than 0) names of either sex are reported in a given year and state, the sum of the state totals will be less than the national total.</p>
 <p>This is why no Beyoncés show up in the data in 1981, the year Queen Bey was born.</p>
 <center>
-<img src="/figs/2018-05-20-us-of-bey/soldier.gif", alt = "Where they at? Where they at?", style="width:420px;"></img>
+<img src="/figs/2018-05-20-the-us-of-bey/soldier.gif", alt = "Where they at? Where they at?", style="width:420px;"></img>
 </center>
 <pre class="r"><code>data(babynames)
 yonces &lt;- babynames %&gt;%
@@ -132,9 +133,9 @@ g1 &lt;- yonces %&gt;%
   geom_point(aes(x = 1981, y = 1, col = &quot;#e41a1c&quot;))  + 
   guides(col = F)
 
-ggsave(filename = here::here(&quot;content/figs/2018-05-20-us-of-bey/beyhive.png&quot;), width = 8, height = 6)</code></pre>
+ggsave(filename = here::here(&quot;content/figs/2018-05-20-the-us-of-bey/beyhive.png&quot;), width = 8, height = 6)</code></pre>
 <div class="figure">
-<img src="/figs/2018-05-20-us-of-bey/beyhive.png" />
+<img src="/figs/2018-05-20-the-us-of-bey/beyhive.png" />
 
 </div>
 <p>The peak of the Beyoncé name wave came in 2001, followed by a much smaller splintering of Alternative Yoncés in the early 2000s. How does this map onto Queen Bey’s discography?</p>
@@ -159,9 +160,9 @@ g2 &lt;- yonces %&gt;%
                                  family = &quot;Raleway&quot;) + 
     labs(subtitle = &quot;Children born in the US whose names ended in &#39;yonce&#39; \n vs Destiny&#39;s Child and Beyoncé albums, 1995-2015&quot;, caption = wrap90(&quot;Naming a child Beyoncé reached it&#39;s peak in 2001, around the release of the Destiny&#39;s Child album &#39;Survivor&#39;. 2000 saw the first cohort of Alternative Yoncés.&quot;), y = &quot;Annual Yoncés born in the US&quot;)
 
-ggsave(filename = here::here(&quot;content/figs/2018-05-20-us-of-bey/albums.png&quot;), width = 8, height = 6)</code></pre>
+ggsave(filename = here::here(&quot;content/figs/2018-05-20-the-us-of-bey/albums.png&quot;), width = 8, height = 6)</code></pre>
 <div class="figure">
-<img src="/figs/2018-05-20-us-of-bey/albums.png" />
+<img src="/figs/2018-05-20-the-us-of-bey/albums.png" />
 
 </div>
 <p>Somewhat surprisingly, the trend of naming a child Beyoncé peaked quickly in 2001, around the release of the Destiny’s Child album <em>Survivor</em>. This was before her solo career began, let alone before she took over the world. She’s only grown in prominence since then - why the decrease in BaBeys<sup><a href="#notes">1</a></sup>?</p>
@@ -188,9 +189,9 @@ ggsave(filename = here::here(&quot;content/figs/2018-05-20-us-of-bey/albums.png&
     theme(axis.title.y = element_blank()) + 
     guides(fill=guide_legend(title=&quot;Total&quot;))
 
-gganimate::gganimate(g1b, &quot;../figs/2018-05-20-us-of-bey/alt-yonces.gif&quot;, ani.width = 800, ani.height = 600)</code></pre>
+gganimate::gganimate(g1b, &quot;../figs/2018-05-20-the-us-of-bey/alt-yonces.gif&quot;, ani.width = 800, ani.height = 600)</code></pre>
 <div class="figure">
-<img src="/figs/2018-05-20-us-of-bey/alt-yonces.gif" />
+<img src="/figs/2018-05-20-the-us-of-bey/alt-yonces.gif" />
 
 </div>
 <p>Perhaps the hundreds of parents of Deyonce, Veyonce and <a href="https://www.youtube.com/watch?v=fImoDuCsjNQ">Keyonce</a> saw the approaching Beyoncé wave, and decided to make the set of syllables even more unique for their own newborns with a different leading consonant. Bonus points for the parents of those seven male Deyonces - innovation is born from connecting the dots that others won’t or can’t, and the bold creativity in these families is huge.</p>
@@ -213,9 +214,9 @@ g3 &lt;- ggplot(fig1, aes(x = reorder(name, n), y = n,
   labs(caption = wrap90(&quot;Data from the Social Security Administration. To protect privacy and prevent identification, if a name has less than 5 occurrences for a year of birth, those names are not recorded.&quot;)) + 
   theme_fancy()
 
-ggsave(filename = here::here(&quot;content/figs/2018-05-20-us-of-bey/alt-yonces-still.png&quot;), width = 8, height = 6)</code></pre>
+ggsave(filename = here::here(&quot;content/figs/2018-05-20-the-us-of-bey/alt-yonces-still.png&quot;), width = 8, height = 6)</code></pre>
 <div class="figure">
-<img src="/figs/2018-05-20-us-of-bey/alt-yonces-still.png" />
+<img src="/figs/2018-05-20-the-us-of-bey/alt-yonces-still.png" />
 
 </div>
 </div>
@@ -283,19 +284,42 @@ g &lt;- ggplot() +
         axis.text = element_blank()
     ) + theme_fancy()
 
-gganimate::gganimate(g, &quot;../figs/2018-05-20-us-of-bey/USofBey.gif&quot;, ani.width = 800, ani.height = 600, interval = .5)</code></pre>
+gganimate::gganimate(g, &quot;../figs/2018-05-20-the-us-of-bey/USofBey.gif&quot;, ani.width = 800, ani.height = 600, interval = .5)</code></pre>
+<pre class="r"><code>yonces %&gt;% 
+  filter(name == &quot;Beyonce&quot;)</code></pre>
+<pre><code>## # A tibble: 18 x 5
+##     year sex   name        n       prop
+##    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;int&gt;      &lt;dbl&gt;
+##  1  1998 F     Beyonce    18 0.00000929
+##  2  1999 F     Beyonce    67 0.0000344 
+##  3  2000 F     Beyonce   197 0.0000988 
+##  4  2001 F     Beyonce   353 0.000178  
+##  5  2002 F     Beyonce   153 0.0000775 
+##  6  2003 F     Beyonce   206 0.000103  
+##  7  2004 F     Beyonce   176 0.0000873 
+##  8  2005 F     Beyonce   106 0.0000523 
+##  9  2006 F     Beyonce   106 0.0000508 
+## 10  2007 F     Beyonce   185 0.0000875 
+## 11  2008 F     Beyonce   105 0.0000505 
+## 12  2009 F     Beyonce    79 0.0000391 
+## 13  2010 F     Beyonce    51 0.0000261 
+## 14  2011 F     Beyonce    39 0.0000202 
+## 15  2012 F     Beyonce    36 0.0000186 
+## 16  2013 F     Beyonce    28 0.0000146 
+## 17  2014 F     Beyonce    22 0.0000113 
+## 18  2015 F     Beyonce    10 0.00000517</code></pre>
 <div class="figure">
-<img src="/figs/2018-05-20-us-of-bey/USofBey.gif" />
+<img src="/figs/2018-05-20-the-us-of-bey/USofBey.gif" />
 
 </div>
 <p>In state-wide trends over time, Texas pops out. It would be nice to believe that this is because Houston stans its hometown legend, but it’s most likely because of its large population size. We see California, New York, and Florida stand out as well, as well as states with large cities, like Illinois and Georgia.</p>
 <p>To really look at the difference in rates, we have to standardize the data. To calculate <em>Beyoncés per Million</em>, I divided the annual number of babies named Beyoncé in each state by the state-level intercensal population estimates from census.gov.</p>
 <pre class="r"><code># if the population by state data has not been generated yet, run the file that generates it 
 # if it has, load the data into memory 
-if(!file.exists(here::here(&quot;content/data/2018-05-20-us-of-bey/population_by_state.RDS&quot;))) {
-  source(here:here(&quot;content/R/2018-05-20-us-of-bey/get_pop_data.R&quot;))
+if(!file.exists(here::here(&quot;content/data/2018-05-20-the-us-of-bey/population_by_state.RDS&quot;))) {
+  source(here:here(&quot;content/R/2018-05-20-the-us-of-bey/get_pop_data.R&quot;))
 } else {
-    nbipop &lt;- readRDS(here::here(&quot;content/data/2018-05-20-us-of-bey/population_by_state.RDS&quot;))
+    nbipop &lt;- readRDS(here::here(&quot;content/data/2018-05-20-the-us-of-bey/population_by_state.RDS&quot;))
     }
 
 # combine with the state pop to plot the normalized map 
@@ -315,9 +339,9 @@ nbi &lt;- full_join(state_map, nbipop, by = c(&quot;region&quot;, &quot;year&quo
         axis.text = element_blank()
     ) + theme_fancy()
 
-gganimate::gganimate(g, here::here(&quot;content/figs/2018-05-20-us-of-bey/USofBey_normalized.gif&quot;), ani.width = 800, ani.height = 600, interval = .5)</code></pre>
+gganimate::gganimate(g, here::here(&quot;content/figs/2018-05-20-the-us-of-bey/USofBey_normalized.gif&quot;), ani.width = 800, ani.height = 600, interval = .5)</code></pre>
 <div class="figure">
-<img src="/figs/2018-05-20-us-of-bey/USofBey_normalized.gif" />
+<img src="/figs/2018-05-20-the-us-of-bey/USofBey_normalized.gif" />
 
 </div>
 <p>This metric isn’t perfect - annual births and total population are certainly correlated within a state, but there is some variance. A better denominator would be the number of babies born in each state each year as my denominator, rather than the whole population. This reflects the proportion of Bey’s in a birth cohort, rather than in the entire population <strong>BPM (Beyoncés per Million).</strong></p>
@@ -347,9 +371,9 @@ g &lt;- ggplot() +
         axis.text = element_blank()
     ) + theme_fancy()
 
-gganimate::gganimate(g, &quot;../figs/2018-05-20-us-of-bey/USofBey_birth_cohort.gif&quot;, ani.width = 800, ani.height = 600, interval = .5)</code></pre>
+gganimate::gganimate(g, &quot;../figs/2018-05-20-the-us-of-bey/USofBey_birth_cohort.gif&quot;, ani.width = 800, ani.height = 600, interval = .5)</code></pre>
 <div class="figure">
-<img src="/figs/2018-05-20-us-of-bey/USofBey_birth_cohort.gif" />
+<img src="/figs/2018-05-20-the-us-of-bey/USofBey_birth_cohort.gif" />
 
 </div>
 <p>0.084% of children born in Mississippi in 2001 were named Beyoncé! That’s not a ton, but it’s more than I would’ve expected. Those kids are juniors and seniors in high school now, carrying the weight of <em>Lemonade</em> on their shoulders. My fondest congratulations to all of 2018’s Beyoncé grads.</p>
@@ -364,9 +388,9 @@ if(!exists(&quot;statebabynames&quot;)) {
   data(statebabynames::statebabynames) # load data if not loaded already 
 }
 
-statebabynames::map_babynames(nam = &quot;Brooke&quot;, filename = here::here(&quot;content/figs/2018-05-20-us-of-bey/Brooke.gif&quot;), start_year = 1950, stop_year = 2016)</code></pre>
+statebabynames::map_babynames(nam = &quot;Brooke&quot;, filename = here::here(&quot;content/figs/2018-05-20-the-us-of-bey/Brooke.gif&quot;), start_year = 1950, stop_year = 2016)</code></pre>
 <div class="figure">
-<img src="/figs/2018-05-20-us-of-bey/Brooke.gif" />
+<img src="/figs/2018-05-20-the-us-of-bey/Brooke.gif" />
 
 </div>
 <div id="post-script" class="section level2">
