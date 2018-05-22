@@ -3,6 +3,9 @@ title: The US of Bey
 author: Brooke Watson
 date: '2018-05-20'
 slug: the-us-of-bey
+output:
+  blogdown::html_page:
+    toc: true 
 categories: []
 tags:
   - R
@@ -14,10 +17,19 @@ tags:
   - maps
   - beyonce
 description: "Mapping nearly 2000 baby Beyoncés born in the United States."
-
 ---
 
 
+<div id="TOC">
+<ul>
+<li><a href="#about-the-data">About the data</a></li>
+<li><a href="#alternative-yonces">Alternative Yoncés</a></li>
+<li><a href="#the-us-of-bey">The US of Bey</a></li>
+<li><a href="#beyond-beyonce">Beyond Beyoncé</a><ul>
+<li><a href="#post-script">Post Script</a></li>
+</ul></li>
+</ul>
+</div>
 
 <div class="figure">
 <img src="/figs/2018-05-20-the-us-of-bey/bey.png" />
@@ -285,29 +297,6 @@ g &lt;- ggplot() +
     ) + theme_fancy()
 
 gganimate::gganimate(g, &quot;../figs/2018-05-20-the-us-of-bey/USofBey.gif&quot;, ani.width = 800, ani.height = 600, interval = .5)</code></pre>
-<pre class="r"><code>yonces %&gt;% 
-  filter(name == &quot;Beyonce&quot;)</code></pre>
-<pre><code>## # A tibble: 18 x 5
-##     year sex   name        n       prop
-##    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;int&gt;      &lt;dbl&gt;
-##  1  1998 F     Beyonce    18 0.00000929
-##  2  1999 F     Beyonce    67 0.0000344 
-##  3  2000 F     Beyonce   197 0.0000988 
-##  4  2001 F     Beyonce   353 0.000178  
-##  5  2002 F     Beyonce   153 0.0000775 
-##  6  2003 F     Beyonce   206 0.000103  
-##  7  2004 F     Beyonce   176 0.0000873 
-##  8  2005 F     Beyonce   106 0.0000523 
-##  9  2006 F     Beyonce   106 0.0000508 
-## 10  2007 F     Beyonce   185 0.0000875 
-## 11  2008 F     Beyonce   105 0.0000505 
-## 12  2009 F     Beyonce    79 0.0000391 
-## 13  2010 F     Beyonce    51 0.0000261 
-## 14  2011 F     Beyonce    39 0.0000202 
-## 15  2012 F     Beyonce    36 0.0000186 
-## 16  2013 F     Beyonce    28 0.0000146 
-## 17  2014 F     Beyonce    22 0.0000113 
-## 18  2015 F     Beyonce    10 0.00000517</code></pre>
 <div class="figure">
 <img src="/figs/2018-05-20-the-us-of-bey/USofBey.gif" />
 
@@ -360,7 +349,7 @@ normalized &lt;- full_join(state_map, totals, by = c(&quot;region&quot;, &quot;y
 g &lt;- ggplot() + 
     geom_polygon(data = normalized, aes(fill = percent_cohort, x = long, y = lat, group = group, frame = year)) +
     scale_fill_gradient(low = &quot;lightblue&quot;, high = &quot;darkblue&quot;, na.value = &quot;lightgray&quot;, guide = &quot;legend&quot;) + 
-    ggtitle(&quot;The US of Bey: Beyoncés per Birth Cohort, &quot;) +
+    ggtitle(&quot;Destiny&#39;s Children: Beyoncés per Birth Cohort, &quot;) +
     labs(subtitle = paste0(&quot;Percent of children born annually in each state who were named Beyoncé, 1995-2015&quot;), 
          caption = wrap120(&quot;Data from the Social Security Administration. To protect privacy, if a name has less than 5 occurrences for a year of birth in any state, those names are not recorded. The sum of the state counts is thus less than the national count.&quot;)) + 
     bplots::theme_blank(element_text(family = &quot;Raleway&quot;)) + 
