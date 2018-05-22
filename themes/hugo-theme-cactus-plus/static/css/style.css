@@ -244,27 +244,20 @@ nav.main-nav a.cta {
 
 /*Accent color*/
 
-a, #title, #post-list #title:hover {
+a, #title, #post-list a:hover, #title:hover {
     text-decoration: none;
+    color: #3e72ad;
     color: #04456F;
 }
 
 p a {
-    text-decoration: none;
-    font-weight: bold;
     color: #04456F;
 }
 
-a:hover, p a:hover { 
-  font-weight: normal;
-  color: #3e72ad;
-  
-}
 
 /*Transitions*/
 
 a, #post-nav a, #post-list a {
-  
     -webkit-transition: all 0.15s ease;
     -moz-transition: all 0.15s ease;
     -ms-transition: all 0.15s ease;
