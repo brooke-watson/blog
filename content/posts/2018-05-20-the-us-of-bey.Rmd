@@ -281,12 +281,6 @@ gganimate::gganimate(g, "../figs/2018-05-20-the-us-of-bey/USofBey.gif", ani.widt
 
 ```
 
-```{r}
-yonces %>% 
-  filter(name == "Beyonce")
-```
-
-
 ![](/figs/2018-05-20-the-us-of-bey/USofBey.gif)
 
 In state-wide trends over time, Texas pops out. It would be nice to believe that this is because Houston stans its hometown legend, but it's most likely because of its large population size. We see California, New York, and Florida stand out as well, as well as states with large cities, like Illinois and Georgia. 
@@ -346,8 +340,6 @@ The next morning, I realized that I had obviously had the state-level annual num
 </center>
 
 
-
-
 Anyways, below is the state-level number of Beyoncés per both cohort.  
 
 ```{r, eval = FALSE}
@@ -361,7 +353,7 @@ normalized <- full_join(state_map, totals, by = c("region", "year")) %>%
 g <- ggplot() + 
     geom_polygon(data = normalized, aes(fill = percent_cohort, x = long, y = lat, group = group, frame = year)) +
     scale_fill_gradient(low = "lightblue", high = "darkblue", na.value = "lightgray", guide = "legend") + 
-    ggtitle("The US of Bey: Beyoncés per Birth Cohort, ") +
+    ggtitle("Destiny's Children: Beyoncés per Birth Cohort, ") +
     labs(subtitle = paste0("Percent of children born annually in each state who were named Beyoncé, 1995-2015"), 
          caption = wrap120("Data from the Social Security Administration. To protect privacy, if a name has less than 5 occurrences for a year of birth in any state, those names are not recorded. The sum of the state counts is thus less than the national count.")) + 
     bplots::theme_blank(element_text(family = "Raleway")) + 
