@@ -1,0 +1,408 @@
+---
+title: The US of Bey
+author: Brooke Watson
+date: '2018-05-20'
+slug: the-us-of-bey
+categories: []
+tags:
+  - R
+  - data tidying
+  - stringr
+  - dataviz
+  - ggplot
+  - gganimate
+  - maps
+  - beyonce
+description: "Mapping nearly 2000 baby Beyoncés born in the United States."
+
+---
+
+
+
+<div class="figure">
+<img src="/figs/2018-05-20-the-us-of-bey/bey.png" />
+
+</div>
+<div id="we-stan-a-legend." class="section level6">
+<h6>We stan a legend.</h6>
+<p></br></p>
+<p>Beyoncé Knowles-Carter is an icon who needs no introduction. In her 36 years, she has become the top selling artist of the 21st century, the <a href="http://www.billboard.com/articles/events/grammys-2015/6363698/beyonce-most-grammy-nominated-woman">most-nominated woman</a> in Grammy history, and the <a href="http://www.mtv.co.uk/beyonce/news/beyonce-named-highestearning-black-artist-of-all-time">highest-paid</a> black artist of all time. <em>Time</em> put her on the <a href="http://www.bbc.com/news/entertainment-arts-27154568">cover</a> of its 100 most influential people issue, effectively crowning her the Most Influential Person. Other incredibly famous performers <a href="https://www.youtube.com/watch?v=iOhJsCaZVJQ">LOSE IT</a> when they see her. <a href="https://www.cnn.com/2018/04/16/entertainment/beyonce-adele-coachella/index.html">Millionaire pop stars</a> go nuts just watching her on TV. Even her <a href="https://www.instagram.com/p/BbrzUbUnH2j/?taken-by=beyonce">hair</a> adoringly does her bidding. (I’ve been convinced she owns a <a href="https://youtu.be/5j8eoD3tOv0?t=38m35s">free-range ponytail farm</a> in a country that only rich people know about, where Blue Ivy hand-feeds the ponytails organic apples until Bey has to select one for a gala or performance.) She has surpassed fame.</p>
+<center>
+<img src="https://hips.hearstapps.com/ell.h-cdn.co/assets/16/29/480x306/gallery-1468852854-tumblr-oaf7m2srs31qf3xzvo2-540-1.gif", alt = "iconic.", style="width:320px;"></img>
+</center>
+<p></br></p>
+<p>Like other legends (Martin Luther, <a href="https://www.nbcnews.com/storyline/president-obama-the-legacy/growing-barack-meet-three-boys-named-after-president-obama-n709046">Barack Obama</a>, <a href="https://www.huffingtonpost.com/2015/04/08/game-of-thrones-baby-names_n_7018504.html">Arya Stark</a>, etc.), Queen Bey’s prominance has spawned a wave of namesakes in the United States. Mrs. Knowles-Carter needs no last name to be recognized - But what of the Beyoncés who <em>do</em>? Where are they? Is the name getting more popular as her fame grows? What’s it like to be named Beyoncé in high school in 2015?</p>
+<p>Thanks to the <code>babynames</code> package in R - along with some additional open data from the Social Security Administration - it’s pretty easy to answer the first few questions. For the last, we have <a href="https://www.boredpanda.com/celebrity-names-girl-named-beyonce-humans-of-new-york/">Humans of New York</a>.</p>
+<div class="figure">
+<img src="/figs/2018-05-20-the-us-of-bey/USofBey.gif" />
+
+</div>
+<p>This post looks at baby name trends in the US, focusing on babies named after Queen Bey. It includes all the data and code necessary to generate these graphs and maps. Note that many of the plots use themes from my own bundle of ggplot convenience functions on Github, and will not work without running <code>devtools::install_github(&quot;brooke-watson/bplots&quot;)</code> and installing the <a href="https://fonts.google.com/specimen/Raleway">Raleway</a> font from Google. However, these functions (<code>theme_raleway()</code> and <code>theme_fancy()</code>, for example) can be omitted or approximated with other calls to <code>theme()</code>.</p>
+<pre class="r"><code>library(tidyverse) 
+library(janitor)
+library(stringr)
+library(here)
+library(scales)
+library(babynames)
+library(bplots) # devtools::install_github(&quot;brooke-watson/bplots&quot;)
+library(viridis)
+library(gganimate) # devtools::install_github(&quot;dgrtwo/gganimate&quot;)</code></pre>
+</div>
+<div id="about-the-data" class="section level1">
+<h1>About the data</h1>
+<p>The United States Social Security Administration releases yearly summaries of baby names reported on Social Security card applications, sorted by sex, dating back to 1910. The data is aggregated at both the national and state level. <strong>To safeguard privacy, the SSA restricts the list of names to those with at least 5 occurrences per year, per sex.</strong> At the state level, these same restrictions apply, so if less than 5 (but more than 0) names of either sex are reported in a given year and state, the sum of the state totals will be less than the national total.</p>
+<p>This is why no Beyoncés show up in the data in 1981, the year Queen Bey was born.</p>
+<center>
+<img src="/figs/2018-05-20-the-us-of-bey/soldier.gif", alt = "Where they at? Where they at?", style="width:420px;"></img>
+</center>
+<pre class="r"><code>data(babynames)
+yonces &lt;- babynames %&gt;%
+  filter(str_detect(name, &quot;yonce&quot;) == TRUE) 
+rm(babynames)
+knitr::kable(head(yonces))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">year</th>
+<th align="left">sex</th>
+<th align="left">name</th>
+<th align="right">n</th>
+<th align="right">prop</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1998</td>
+<td align="left">F</td>
+<td align="left">Beyonce</td>
+<td align="right">18</td>
+<td align="right">9.30e-06</td>
+</tr>
+<tr class="even">
+<td align="right">1999</td>
+<td align="left">F</td>
+<td align="left">Beyonce</td>
+<td align="right">67</td>
+<td align="right">3.44e-05</td>
+</tr>
+<tr class="odd">
+<td align="right">2000</td>
+<td align="left">F</td>
+<td align="left">Beyonce</td>
+<td align="right">197</td>
+<td align="right">9.88e-05</td>
+</tr>
+<tr class="even">
+<td align="right">2000</td>
+<td align="left">F</td>
+<td align="left">Keyonce</td>
+<td align="right">7</td>
+<td align="right">3.50e-06</td>
+</tr>
+<tr class="odd">
+<td align="right">2000</td>
+<td align="left">F</td>
+<td align="left">Deyonce</td>
+<td align="right">6</td>
+<td align="right">3.00e-06</td>
+</tr>
+<tr class="even">
+<td align="right">2000</td>
+<td align="left">F</td>
+<td align="left">Beyoncee</td>
+<td align="right">5</td>
+<td align="right">2.50e-06</td>
+</tr>
+</tbody>
+</table>
+<p>It’s possible that Beyoncé was not the first of her name - all we know is that there are no recorded years before she was born in which more than 5 baby Beyoncés were born in the US. While some sparsely populated Yoncés <em>could</em> have trickled, unaggregated, through Social Security records throughout the 20th century, the first sizable cohort - 18 Beyoncés - was born in 1998, when Queen Bey was only 17 years old. This is the year of Destiny’s Child’s first self-titled album, and the first year that this girl group explodes onto the pop music scene.</p>
+<pre class="r"><code>wrap90 &lt;- wrap_format(90)
+wrap95 &lt;- wrap_format(95)
+
+g1 &lt;- yonces %&gt;% 
+    filter(name == &quot;Beyonce&quot;) %&gt;% 
+    ggplot(., aes(x = year, y = n)) +
+    geom_line(aes(col = &quot;#e41a1c&quot;)) + 
+    ggtitle(&quot;Birth of a Beyhive&quot;) +
+    labs(subtitle = &quot;Children named Beyoncé born in the US, 1910-2015&quot;, 
+         caption = wrap95(&quot;Data from the Social Security Administration. To protect privacy and prevent identification, if a name has less than 5 occurrences for a year of birth, those names are not recorded. Thus, Beyoncé Knowles&#39; birth (in 1981) is not actually included in the public SSA data.&quot;), y = &quot;Annual Beyoncés born in the US&quot;) +
+  annotate(&quot;text&quot;, x = 1965, y = 30, label = &quot;Beyoncé Knowles&quot;, family = &quot;Raleway&quot;) +
+    theme_raleway() + 
+    theme_fancy() + 
+  xlim(1910, 2015) + 
+  geom_point(aes(x = 1981, y = 1, col = &quot;#e41a1c&quot;))  + 
+  guides(col = F)
+
+ggsave(filename = here::here(&quot;content/figs/2018-05-20-the-us-of-bey/beyhive.png&quot;), width = 8, height = 6)</code></pre>
+<div class="figure">
+<img src="/figs/2018-05-20-the-us-of-bey/beyhive.png" />
+
+</div>
+<p>The peak of the Beyoncé name wave came in 2001, followed by a much smaller splintering of Alternative Yoncés in the early 2000s. How does this map onto Queen Bey’s discography?</p>
+<pre class="r"><code>album_join &lt;-  data_frame(name = &quot;Beyonce&quot;, year = c(1998, 1999, 2001, 2003, 2006, 2008, 2011, 2013), album = c(&quot;Destiny&#39;s Child&quot;, &quot;The Writing&#39;s on the Wall&quot;, &quot;Survivor&quot;, &quot;Dangerously in Love&quot;, &quot;B&#39;Day&quot;, &quot;I Am... Sasha Fierce&quot;, &quot;4&quot;, &quot;Beyoncé&quot;))
+
+yonces &lt;- 
+  left_join(yonces,album_join, by = c(&quot;name&quot;, &quot;year&quot;) )
+
+# add album annotations 
+g2 &lt;- yonces %&gt;%  
+  select(-sex, -prop) %&gt;% 
+   ggplot(., aes(x = year, y = n)) +
+    geom_line(aes(col = name)) + 
+    xlim(1995, 2015) + 
+    ggtitle(&quot;Destiny&#39;s Children&quot;) +
+    # labs(subtitle = &quot;Children born in the US, 1995-2015&quot;) + 
+    scale_color_manual(values = c(&quot;#e41a1c&quot;, &quot;#377eb8&quot;, &quot;#4daf4a&quot;, &quot;#984ea3&quot;, &quot;#ff7f00&quot;, &quot;#ffff33&quot;, &quot;#a65628&quot;, &quot;#f781bf&quot;, &quot;#999999&quot;, &quot;#999999&quot;)) +
+    theme_raleway() + 
+    theme_fancy() +   
+  geom_point(data = filter(yonces, !is.na(album)), aes(col = NULL, label = album)) + 
+        ggrepel::geom_label_repel(aes(x = year, y = n, label = album), 
+                                 family = &quot;Raleway&quot;) + 
+    labs(subtitle = &quot;Children born in the US whose names ended in &#39;yonce&#39; \n vs Destiny&#39;s Child and Beyoncé albums, 1995-2015&quot;, caption = wrap90(&quot;Naming a child Beyoncé reached it&#39;s peak in 2001, around the release of the Destiny&#39;s Child album &#39;Survivor&#39;. 2000 saw the first cohort of Alternative Yoncés.&quot;), y = &quot;Annual Yoncés born in the US&quot;)
+
+ggsave(filename = here::here(&quot;content/figs/2018-05-20-the-us-of-bey/albums.png&quot;), width = 8, height = 6)</code></pre>
+<div class="figure">
+<img src="/figs/2018-05-20-the-us-of-bey/albums.png" />
+
+</div>
+<p>Somewhat surprisingly, the trend of naming a child Beyoncé peaked quickly in 2001, around the release of the Destiny’s Child album <em>Survivor</em>. This was before her solo career began, let alone before she took over the world. She’s only grown in prominence since then - why the decrease in BaBeys<sup><a href="#notes">1</a></sup>?</p>
+<p>Perhaps in 2001, it was easier to think of “<em>Beyoncé</em>” as merely a beautiful, unique name that was growing in familiarity on local radios - much like the names <a href="https://en.wikipedia.org/wiki/Cardi_B">Belcardis</a> or <a href="https://en.wikipedia.org/wiki/Kehlani">Kehlani</a> may be today. Naming a child Beyoncé in the year of Beychella seems like a lot of pressure. We likely haven’t seen the last Beyoncé baby, but the wave hasn’t continued to swell. I wouldn’t be surprised if we start to see spikes in babies named Blue, Rumi, and Sir in its stead.</p>
+<center>
+<img src="https://media.giphy.com/media/26DNcyULKmyOzqGbe/giphy.gif", alt = "young icon.", style="width:480px;"></img>
+<p style="width:480px;">
+<b>Blue Ivy Carter, the world’s most powerful six-year-old, politely silencing two of the most successful Americans alive.</b>
+</p>
+</center>
+</div>
+<div id="alternative-yonces" class="section level1">
+<h1>Alternative Yoncés</h1>
+<p>By 2001, names that <em>rhyme</em> with Beyoncé were also picking up steam. They get massively overshadowed in the larger graph, but there are quite a few of these Alternative Yoncés. and the cohorts persist over several years before puttering out around 2007. Which ones are most popular?</p>
+<pre class="r"><code>g1b &lt;- yonces %&gt;% 
+    filter(name != &quot;Beyonce&quot;) %&gt;% 
+    ggplot(., aes(x = reorder(name, n), y = n, fill = cumsum(n), frame = year)) +
+    geom_col(aes(cumulative = TRUE), width = .2) +
+    coord_flip() + 
+    ggtitle(&quot;Cumulative Growth of Alternative Yoncés: &quot;) +
+    scale_fill_viridis(option = &quot;C&quot;) +  
+    theme_raleway(plot_title_size = 26, base_size = 16, axis_text_size = 16, strip_text_size = 16) + 
+    theme_fancy() +
+    theme(axis.title.y = element_blank()) + 
+    guides(fill=guide_legend(title=&quot;Total&quot;))
+
+gganimate::gganimate(g1b, &quot;../figs/2018-05-20-the-us-of-bey/alt-yonces.gif&quot;, ani.width = 800, ani.height = 600)</code></pre>
+<div class="figure">
+<img src="/figs/2018-05-20-the-us-of-bey/alt-yonces.gif" />
+
+</div>
+<p>Perhaps the hundreds of parents of Deyonce, Veyonce and <a href="https://www.youtube.com/watch?v=fImoDuCsjNQ">Keyonce</a> saw the approaching Beyoncé wave, and decided to make the set of syllables even more unique for their own newborns with a different leading consonant. Bonus points for the parents of those seven male Deyonces - innovation is born from connecting the dots that others won’t or can’t, and the bold creativity in these families is huge.</p>
+<pre class="r"><code>fig1 &lt;- yonces %&gt;% 
+  group_by(name, sex) %&gt;% 
+  summarise(n = sum(n)) %&gt;% 
+  mutate(n = ifelse(sex == &quot;F&quot;, n, -n)) 
+
+g3 &lt;- ggplot(fig1, aes(x = reorder(name, n), y = n, 
+                      fill = sex, col = sex)) + 
+  geom_point() + 
+  geom_col(width = .2) +
+  theme_raleway() + 
+  coord_flip() +
+  ylim(-200, 2500) +
+  geom_text(data = filter(fig1, sex == &quot;F&quot;), aes(reorder(name, n), y = n, label = n), hjust = -.5) +
+  geom_text(data = filter(fig1, sex != &quot;F&quot;), aes(reorder(name, n), y = n, label = -n), hjust = 1.5) +
+  labs(x = &quot;&quot;, y = &quot;n&quot;) + 
+  ggtitle(&quot;American Yoncés, 1995-2015.&quot;) +
+  labs(caption = wrap90(&quot;Data from the Social Security Administration. To protect privacy and prevent identification, if a name has less than 5 occurrences for a year of birth, those names are not recorded.&quot;)) + 
+  theme_fancy()
+
+ggsave(filename = here::here(&quot;content/figs/2018-05-20-the-us-of-bey/alt-yonces-still.png&quot;), width = 8, height = 6)</code></pre>
+<div class="figure">
+<img src="/figs/2018-05-20-the-us-of-bey/alt-yonces-still.png" />
+
+</div>
+</div>
+<div id="the-us-of-bey" class="section level1">
+<h1>The US of Bey</h1>
+<p>We’ve looked at how these patterns vary over time. But how do they vary spatially? Are there more Beyoncés in Texas, her home state? Did the south catch on earlier than the north, or the east before the west?</p>
+<p>Because of the privacy protections around open and public SSA applications, some of the data gets lost when disaggregated at the state-wide level. However, there are still some name patterns that can be picked up in the peak years.</p>
+<p>I wrapped the state level data up in a Github package, so that’s what I’ll use to find statewide patterns. It’s available for anyone to install, but be aware - the package and related dataset is pretty big (17.1 MB, well over the 5 MB CRAN limit).</p>
+<pre class="r"><code>if(!require(statebabynames)) {
+  devtools::install_github(&quot;brooke-watson/statebabynames&quot;) } 
+data(&quot;statebabynames&quot;)
+
+# filter out just the yonces by state 
+ybs &lt;- statebabynames %&gt;% 
+    filter(str_detect(name, &quot;yonce&quot;) == TRUE) </code></pre>
+<pre class="r"><code>unique(ybs$name) </code></pre>
+<pre><code>## [1] &quot;Beyonce&quot;</code></pre>
+<pre class="r"><code>sort(unique(ybs$year)) </code></pre>
+<pre><code>##  [1] 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012
+## [15] 2013</code></pre>
+<p>Unsurprisingly, all of the less common variants - Keyonce, Deyonce, and Breyonce - are masked in the state-level data. There are just too few in each year in each state. However, there are enough Beyoncés left to pick up some patterns across states.</p>
+<center>
+<img src="https://media.giphy.com/media/11wsZr0jbXc15m/giphy.gif", alt = "yikes", style="width:320px;"></img>
+</center>
+<pre class="r"><code># get a data frame of all the state-year combos to fill in missing NAs, starting in 1995 and ending in 2015 to match with the earlier data 
+big &lt;- statebabynames %&gt;% 
+    select(state, year) %&gt;% 
+    unique() %&gt;% 
+    filter(year &gt;= 1995 &amp; year &lt; 2016)
+
+# get the total number of applications per year for later use 
+totals &lt;- statebabynames %&gt;%
+  group_by(state, year) %&gt;% 
+  filter(year &gt;= 1995 &amp; year &lt; 2016) %&gt;% 
+  summarise(total = sum(n))
+
+# join both to fill the empty state-year combos with NAs 
+ybs &lt;- full_join(ybs, big, by = c(&quot;state&quot;, &quot;year&quot;))</code></pre>
+<pre class="r"><code>wrap120 = wrap_format(120)
+
+# match state abbreviations with &quot;region&quot; names in the usa map
+state_lookup = data_frame(state = state.abb, 
+                          region = tolower(state.name))
+
+# load state map data 
+usa_map &lt;- map_data(&quot;state&quot;) 
+
+# full join the DFs to get NAs for all missing year-state combos
+state_map &lt;- ybs %&gt;% 
+    full_join(., state_lookup, by = &quot;state&quot;) %&gt;% 
+    full_join(usa_map, by = &quot;region&quot;)  
+
+# plot the data 
+g &lt;- ggplot() + 
+    geom_polygon(data = state_map, aes(fill = n, x = long, y = lat, group = group, frame = year)) +
+    scale_fill_gradient(low = &quot;lightblue&quot;, high = &quot;darkblue&quot;, na.value = &quot;lightgray&quot;, guide = &quot;legend&quot;) + 
+    ggtitle( &quot;The US of Bey:&quot; ) +
+    labs(subtitle = paste0(&quot;Children named Beyonce born in each state, 1995-2015&quot;), 
+         caption = wrap120(&quot;Data from the Social Security Administration. To protect privacy, if a name has less than 5 occurrences for a year of birth in any state, those names are not recorded. The sum of the state counts is thus less than the national count.&quot;)) + 
+    bplots::theme_blank(element_text(family = &quot;Raleway&quot;)) + 
+    theme(
+        plot.title = element_text(size = 28, hjust = .5, 
+        margin = margin(b = -0.1, t = 0.4, l = 2, unit = &quot;cm&quot;)),
+        plot.subtitle = element_text(size = 16, hjust = .5, vjust = -2, color = &quot;#4e4d47&quot;), 
+        axis.text = element_blank()
+    ) + theme_fancy()
+
+gganimate::gganimate(g, &quot;../figs/2018-05-20-the-us-of-bey/USofBey.gif&quot;, ani.width = 800, ani.height = 600, interval = .5)</code></pre>
+<pre class="r"><code>yonces %&gt;% 
+  filter(name == &quot;Beyonce&quot;)</code></pre>
+<pre><code>## # A tibble: 18 x 5
+##     year sex   name        n       prop
+##    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;int&gt;      &lt;dbl&gt;
+##  1  1998 F     Beyonce    18 0.00000929
+##  2  1999 F     Beyonce    67 0.0000344 
+##  3  2000 F     Beyonce   197 0.0000988 
+##  4  2001 F     Beyonce   353 0.000178  
+##  5  2002 F     Beyonce   153 0.0000775 
+##  6  2003 F     Beyonce   206 0.000103  
+##  7  2004 F     Beyonce   176 0.0000873 
+##  8  2005 F     Beyonce   106 0.0000523 
+##  9  2006 F     Beyonce   106 0.0000508 
+## 10  2007 F     Beyonce   185 0.0000875 
+## 11  2008 F     Beyonce   105 0.0000505 
+## 12  2009 F     Beyonce    79 0.0000391 
+## 13  2010 F     Beyonce    51 0.0000261 
+## 14  2011 F     Beyonce    39 0.0000202 
+## 15  2012 F     Beyonce    36 0.0000186 
+## 16  2013 F     Beyonce    28 0.0000146 
+## 17  2014 F     Beyonce    22 0.0000113 
+## 18  2015 F     Beyonce    10 0.00000517</code></pre>
+<div class="figure">
+<img src="/figs/2018-05-20-the-us-of-bey/USofBey.gif" />
+
+</div>
+<p>In state-wide trends over time, Texas pops out. It would be nice to believe that this is because Houston stans its hometown legend, but it’s most likely because of its large population size. We see California, New York, and Florida stand out as well, as well as states with large cities, like Illinois and Georgia.</p>
+<p>To really look at the difference in rates, we have to standardize the data. To calculate <em>Beyoncés per Million</em>, I divided the annual number of babies named Beyoncé in each state by the state-level intercensal population estimates from census.gov.</p>
+<pre class="r"><code># if the population by state data has not been generated yet, run the file that generates it 
+# if it has, load the data into memory 
+if(!file.exists(here::here(&quot;content/data/2018-05-20-the-us-of-bey/population_by_state.RDS&quot;))) {
+  source(here:here(&quot;content/R/2018-05-20-the-us-of-bey/get_pop_data.R&quot;))
+} else {
+    nbipop &lt;- readRDS(here::here(&quot;content/data/2018-05-20-the-us-of-bey/population_by_state.RDS&quot;))
+    }
+
+# combine with the state pop to plot the normalized map 
+nbi &lt;- full_join(state_map, nbipop, by = c(&quot;region&quot;, &quot;year&quot;)) %&gt;% 
+  mutate(bpm = n*1e6/pop)</code></pre>
+<pre class="r"><code>g &lt;- ggplot() + 
+    geom_polygon(data = nbi, aes(fill = bpm, x = long, y = lat, group = group, frame = year)) +
+    scale_fill_gradient(low = &quot;lightblue&quot;, high = &quot;darkblue&quot;, na.value = &quot;lightgray&quot;, guide = &quot;legend&quot;) + 
+    ggtitle(&quot;BPM (Beyoncés per Million):&quot;) +
+    labs(subtitle = paste0(&quot;Children named Beyoncé born annually per 1,000,000 residents in each state, 1995-2015&quot;), 
+         caption = wrap120(&quot;Data from the Social Security Administration. To protect privacy, if a name has less than 5 occurrences for a year of birth in any state, those names are not recorded. The sum of the state counts is thus less than the national count.&quot;)) + 
+    bplots::theme_blank(element_text(family = &quot;Raleway&quot;)) + 
+    theme(
+        plot.title = element_text(size = 28, hjust = .5, 
+        margin = margin(b = -0.1, t = 0.4, l = 2, unit = &quot;cm&quot;)),
+        plot.subtitle = element_text(size = 16, hjust = .5, vjust = -2, color = &quot;#4e4d47&quot;), 
+        axis.text = element_blank()
+    ) + theme_fancy()
+
+gganimate::gganimate(g, here::here(&quot;content/figs/2018-05-20-the-us-of-bey/USofBey_normalized.gif&quot;), ani.width = 800, ani.height = 600, interval = .5)</code></pre>
+<div class="figure">
+<img src="/figs/2018-05-20-the-us-of-bey/USofBey_normalized.gif" />
+
+</div>
+<p>This metric isn’t perfect - annual births and total population are certainly correlated within a state, but there is some variance. A better denominator would be the number of babies born in each state each year as my denominator, rather than the whole population. This reflects the proportion of Bey’s in a birth cohort, rather than in the entire population <strong>BPM (Beyoncés per Million).</strong></p>
+<p>(Working on this in the dark at 1:30 AM on a Wednesday, I furiously but unsuccessfully Googled state-level births per year from US census data. After longer than I am proud to admit, it dawned on me that I was Doing Too Much. I went to bed.</p>
+<p>The next morning, I realized that I had obviously had the state-level annual number of births all along, in the original Social Security Application data. <a href="https://twitter.com/jent103/status/994613519822786562">Rest, people.</a>)</p>
+<center>
+<img src="https://media.giphy.com/media/VxkNDa92gcsRq/giphy.gif", alt = "yikes", style="width:320px;"></img>
+</center>
+<p>Anyways, below is the state-level number of Beyoncés per both cohort.</p>
+<pre class="r"><code>totals &lt;- full_join(state_lookup, totals, by = &quot;state&quot;) %&gt;% 
+  select(-state) 
+
+normalized &lt;- full_join(state_map, totals, by = c(&quot;region&quot;, &quot;year&quot;)) %&gt;%
+  mutate(percent_cohort = n*100/total) 
+
+g &lt;- ggplot() + 
+    geom_polygon(data = normalized, aes(fill = percent_cohort, x = long, y = lat, group = group, frame = year)) +
+    scale_fill_gradient(low = &quot;lightblue&quot;, high = &quot;darkblue&quot;, na.value = &quot;lightgray&quot;, guide = &quot;legend&quot;) + 
+    ggtitle(&quot;The US of Bey: Beyoncés per Birth Cohort, &quot;) +
+    labs(subtitle = paste0(&quot;Percent of children born annually in each state who were named Beyoncé, 1995-2015&quot;), 
+         caption = wrap120(&quot;Data from the Social Security Administration. To protect privacy, if a name has less than 5 occurrences for a year of birth in any state, those names are not recorded. The sum of the state counts is thus less than the national count.&quot;)) + 
+    bplots::theme_blank(element_text(family = &quot;Raleway&quot;)) + 
+    theme(
+        plot.title = element_text(size = 28, hjust = .5, 
+        margin = margin(b = -0.1, t = 0.4, l = 2, unit = &quot;cm&quot;)),
+        plot.subtitle = element_text(size = 16, hjust = .5, vjust = -2, color = &quot;#4e4d47&quot;), 
+        axis.text = element_blank()
+    ) + theme_fancy()
+
+gganimate::gganimate(g, &quot;../figs/2018-05-20-the-us-of-bey/USofBey_birth_cohort.gif&quot;, ani.width = 800, ani.height = 600, interval = .5)</code></pre>
+<div class="figure">
+<img src="/figs/2018-05-20-the-us-of-bey/USofBey_birth_cohort.gif" />
+
+</div>
+<p>0.084% of children born in Mississippi in 2001 were named Beyoncé! That’s not a ton, but it’s more than I would’ve expected. Those kids are juniors and seniors in high school now, carrying the weight of <em>Lemonade</em> on their shoulders. My fondest congratulations to all of 2018’s Beyoncé grads.</p>
+</div>
+<div id="beyond-beyonce" class="section level1">
+<h1>Beyond Beyoncé</h1>
+<p>This is a particularly fun analysis to do for Beyoncé, because not only is she an icon, her first name is uniquely associated with one individual. Parsing the impact of Justin Bieber, for example, on baby names after his rise to fame is trickier, because the name is much more common in America.</p>
+<p>Howeer, many names in America go through cyclical trends. The popularity of boys’ names seems to fluctuate less than that of girls - James, John, Robert, and Michael remain popular throughout the decades, while Stacy, Linda, Jessica and Jennifer go through phases of popularity. My own name, Brooke, spikes at the start of the 80s before really hitting its stride in the late 90s and early 2000s, before starting to dip out of fashion in the past decade or so.</p>
+<p>By wrapping most of this into a function, we can make this map for any name that is listed in Social Security data. The <code>map_babynames</code> function in the <code>statebabynames</code> package plots the popularity of a baby name throughout the years. Again, you’ll need the babynames dataset by state, which is hosted on Github as an <code>.rda</code> file. The <code>map_babynames</code> function is in the package as well.</p>
+<pre class="r"><code># download the state babynames file from github 
+if(!exists(&quot;statebabynames&quot;)) { 
+  data(statebabynames::statebabynames) # load data if not loaded already 
+}
+
+statebabynames::map_babynames(nam = &quot;Brooke&quot;, filename = here::here(&quot;content/figs/2018-05-20-the-us-of-bey/Brooke.gif&quot;), start_year = 1950, stop_year = 2016)</code></pre>
+<div class="figure">
+<img src="/figs/2018-05-20-the-us-of-bey/Brooke.gif" />
+
+</div>
+<div id="post-script" class="section level2">
+<h2>Post Script</h2>
+<p><code>statebabynames</code> didn’t need to be a package, but in the continued spirit of Doing Too Much, I hope people have fun with it. The package is huge and riddled with dependencies, so I’d happily accept pull requests that make it cleaner. This post was partially an excuse to play with the <code>babynames</code> and the <code>gganimate</code> packages, and partially an excuse to scour the internet for my favorite Beyoncés gifs, in the service of ✨ data science ✨ . I’m not sorry.</p>
+<center>
+<img src="https://buildingbrave.org/wp-content/uploads/2017/04/i-aint-sorry.gif", alt = "sorry", style="width:320px;"> </img>
+</center>
+<p></br></p>
+<div id="notes" class="section level6">
+<h6>notes</h6>
+<p><sup>1</sup> I recognize that “BaBeys” is a terrible pun. However, it felt an appropriate place to remind the reader that in the context of Beyonce, <a href="https://twitter.com/IamGMJohnson/status/985654154482896899">“Bey” is not pronounced “Bay.”</a> It’s pronounced “Bee”, like a Queen Bee, like the first half of Be-Yoncé’s name. I don’t want to hear any “but It’s spelled like”Hey!“” commentary. We put up with a lot of strange spellings in the English language. Please don’t subject yourself to the ridicule of the Beyhive. I don’t make the rules.</p>
+</div>
+</div>
+</div>
