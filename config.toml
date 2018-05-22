@@ -18,12 +18,6 @@ contentdir = "content"
 	enableRSS = true
 	enableToc = true
 	
-	# Set to true to disable code folding
-  disable_codefolding = true
-  # Set to "hide" or "show" all codes by default
-  codefolding_show = "hide"
-
-
 	enableDisqus = true
 	disqusShortname = "brooke-dot-science"
 
