@@ -17,6 +17,12 @@ contentdir = "content"
 
 	enableRSS = true
 	enableToc = true
+	
+	# Set to true to disable code folding
+  disable_codefolding = true
+  # Set to "hide" or "show" all codes by default
+  codefolding_show = "hide"
+
 
 	enableDisqus = true
 	disqusShortname = "brooke-dot-science"
@@ -69,9 +75,10 @@ contentdir = "content"
 	iconFont = "font-awesome"
   # The social icons can be styled differently if you use mono as font - circle, rounded, or empty
   socialIconStyle = "circle"
-
+  
 
 # Add additional social link entries underneath
 [social]  
 	twitter = "https://www.twitter.com/brooklynevery1"
 	github = "https://www.github.com/brooke-watson"
+	
