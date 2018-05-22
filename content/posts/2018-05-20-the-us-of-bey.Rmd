@@ -3,6 +3,9 @@ title: The US of Bey
 author: Brooke Watson
 date: '2018-05-20'
 slug: the-us-of-bey
+output:
+  blogdown::html_page:
+    toc: true 
 categories: []
 tags:
   - R
@@ -14,7 +17,6 @@ tags:
   - maps
   - beyonce
 description: "Mapping nearly 2000 baby Beyoncés born in the United States."
-
 ---
 
 ```{r setup, include=FALSE}
