@@ -10,8 +10,8 @@ contentdir = "content"
 
 [params]
 	author = "Brooke Watson"
-	description = "Research Scientist"
-	bio = "America's Next Top Modeller at [EcoHealth Alliance.](https://www.ecohealthalliance.org/personnel/brooke-watson-2)<br> [R Lady](http://www.rladiesnyc.org), [NASA Datanaut](https://open.nasa.gov/explore/datanauts/), and [Meme Sommelier](https://www.twitter.com/brooklynevery1).<br> <br><h6> **[[Say hi]](mailto:hi@brooke.science)** </h6>"
+	# description = "Data Scientist"
+	bio = "[ACLU](http://www.aclu.org) Data Scientist & America's Next Top Modeller. <br> [R Lady](http://www.rladiesnyc.org), [NASA Datanaut](https://open.nasa.gov/explore/datanauts/), and [Meme Sommelier](https://www.twitter.com/brooklynevery1). Trusted purveyor of laughs and graphs.<br> <br>"
 
 	twitter = "brooklynevery1"
 
