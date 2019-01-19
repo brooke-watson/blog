@@ -183,14 +183,14 @@ nav.main-nav a {
     top: 8px;
     right: 6px;
     padding: 8px 12px;
-    color: #3e72ad;
+    color: #04456F;
     font-size: 13px;
     line-height: 1.35;
     border-radius: 3px;
 }
 
 nav.main-nav a.cta {
-    background: #3e72ad;
+    background: #04456F;
     color: #fff;
     margin-left: 12px;
 }
@@ -207,7 +207,7 @@ nav.main-nav a.cta {
       top: 8px;
       right: 6px;
       padding: 8px 8px;
-      color: #3e72ad;
+      color: #04456F;
       font-size: 13px;
       line-height: 1.35;
       border-radius: 3px;
@@ -247,13 +247,13 @@ nav.main-nav a.cta {
 a, #title, #post-list a:hover, #title:hover {
     text-decoration: none;
     color: #3e72ad;
-    color: #04456F;
+    
+    /* color: #3e72ad;  this one is lighter */ 
 }
 
-p a {
-    color: #04456F;
+a:hover {
+  text-decoration: underline;
 }
-
 
 /*Transitions*/
 

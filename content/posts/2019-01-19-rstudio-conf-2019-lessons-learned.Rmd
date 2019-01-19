@@ -1,0 +1,77 @@
+---
+title: 'Rstudio::conf 2019: lessons learned'
+author: Brooke Watson
+date: '2019-01-19'
+slug: rstudio-conf-2019
+output:
+  blogdown::html_page:
+    toc: true 
+categories: []
+tags:
+  - R
+  - open source
+  - rstudioconf
+description: Five major themes that emerged from the 2019 RStudio conference in Austin, Texas.
+---
+
+This year, I had the privilege of attending and speaking at [Rstudio::conf](https://www.rstudio.com/conference/). Fittingly, the final keynote from Dave Robinson was titled, "The Unreasonable Effectiveness of Public Work." Dave's 2017 [tweet](https://twitter.com/drob/status/928447584712253440) launched dozens of technical blogs, and likely a handful of careers as well. 
+
+My own current role is a testament to this philosophy. Through a combination of luck, generosity, and a last-minute cancellation, my own public work in the form of [poorly drawn lines](https://twitter.com/robinson_es/status/1086372952856240128) and [nonsensical neural nets](https://blog.brooke.science/posts/neural-nets-in-r/) helped to boost me into my dream job as a data scientist at the ACLU. My sharing is sometimes selfish - I put things into the world and online so that I can remember them later. But work that others have shared has also helped me tremendously - [technical pieces](https://hookedondata.org/going-off-the-map/) on packages or methods have helped me sharpen my skills, and broader conceptual work has helped shaped my thinking about my goals, my data ethics, and the ways in which I'm giving back. 
+
+As has quickly become R conference [tradition](https://chendaniely.github.io/r/2018/04/22/rstatsnyc/), I drew every talk I attended at Rstudio::conf. As is the mark of a great parallel-track conference, I wasn't able to see all of the talks that I wanted to, but here are the five major themes that I noticed in the ones I saw. I've including linked to my on-the-fly summaries of each talk, but for more details, Karl Broman has done the community an incredible service by collecting and curating these resources on [Github](https://github.com/kbroman/RStudioConf2019Slides). When available, each of these recorded talks will be hosted on Rstudio's website - including those that I didn't get to attend. 
+
+![](/figs/2019-01-19-rstudio-conf/hexes.png)
+
+
+# Constraints are freedom. 
+
+While lists, S4 objects, and mixed-length character strings offer unlimited choice over data structure, most R users find the most comfort and creative freedom inside a full descriptively-named rectangle. Below are several of the talks that made this point clearly, along with packages that make this more achievable. 
+
+- [Hilary Parker](https://twitter.com/brookLYNevery1/status/1086321433960157184) discussed the importance of designing good systems, both for data collection and for data storage and infrastructure. When data is collected in a systematic way, it can reduce the amount of tidying and pre-processing necessary before the real work of analysis and modeling begins. 
+- [Alex Hayes](https://twitter.com/brookLYNevery1/status/1086029003360739328) discussed the need for shared notation and community standards for code, as there is in math. The [broom](https://github.com/tidymodels/broom) package strives to achieve this with tools for rectangulating models and model output. 
+- [Max Kuhn](https://twitter.com/brookLYNevery1/status/1086042152042487809) continued this striving for a uniform interface to model frameworks in R. The [parsnip](https://github.com/tidymodels/parsnip) package picks up where caret leaves off, handling data formatting and providing predictable uniform output to focus the cognitive load on actual research problems. 
+- Tidy Talks™ from [Jenny Bryan](https://twitter.com/brookLYNevery1/status/1086357876279517184) and [Lionel Henry](https://twitter.com/brookLYNevery1/status/1086358880983101440) demystified tidyeval, rlang, and non-standard evaluation. [Jesse Sadler](https://twitter.com/brookLYNevery1/status/1086361244691509248) gave a historian's perspective on why the tidyverse's good defaults and descriptive action verbs make it easier for non-programmers to learn and use R. 
+- [Felienne](https://twitter.com/brookLYNevery1/status/1086297374564204544) explained why coding education should learn from the way we teach reading and math - by reading aloud, teaching the building blocks, using rote practice and memorization, providing many worked examples, and incorporating testing. The current "exploratory" teaching frameworks for coding languages assume that motivation will lead to skill development, but in fact, the opposite is often true - skill begets motivation, and teaching the "boring" building blocks uses what we know about how we learn.
+
+# Less is more. 
+
+A gift that package developers can give to their users is to _make hard decisions for them_. Verbose documention, innumerable options, and unopinionated default values seem like ways to give the user more choice, but often these only increase cognitive load and confuse the user. Good defaults, plain text, dialogue boxes, and descriptive single-function packages can free users to focus on decisions most relevant to their work. 
+
+- [Yihui Xie](https://twitter.com/brookLYNevery1/status/1086316590809956355)'s [pagedown](https://github.com/rstudio/pagedown) adds to the *down family by allowing the user to create paged HTML files for printing to PDF, submitting to journals, and generating posters. By taking care of the formatting and CSS, pagedown allows users to focus on the actual work of sharing knowledge with others. 
+- [Emily Robinson](https://twitter.com/brookLYNevery1/status/1086003133183152128) advocated for packages that empower others by making it easy to do the right thing - packages like [funneljoin](https://github.com/datacamp/funneljoin) for A/B testing.
+- [Miles McBain](https://twitter.com/brookLYNevery1/status/1086322406292107264) asked: what makes software feel magical? Learning from `here`, `tinytex`, the `tidyverse`, and and his own [datapasta](https://github.com/MilesMcBain/datapasta), he concluded that magical packages delight users by adding power while reducing pain.   
+- [Amelia McNamara](https://twitter.com/brookLYNevery1/status/1085967043361427458) demonstrated how the [forcats](https://forcats.tidyverse.org/) package for working with categorical factor variables moves the burden of remembering from the user to the package with direct and verbose function verbs. 
+- [Kara Woo](https://twitter.com/brookLYNevery1/status/1085962875766747137) walked through a bug fix step-by-step, highlighting the usefulness of the [reprex](https://github.com/tidyverse/reprex) package for creating reproducible examples that strip away all non-essential bits of error-producing code. 
+- [Thomas Pedersen](https://twitter.com/brookLYNevery1/status/1086044581131628544) demonstrated the new grammar of [gganimate](https://github.com/thomasp85/gganimate), which simplifies many functions into descriptive, essential verbs. 
+
+# Production is a team sport. 
+
+Multiple speakers discussed the tremendous improvements in [Shiny](https://shiny.rstudio.com/) and [plumber](https://www.rplumber.io/) functionality that allow R products to be used reliably in public-facing applications at scale. However, most R users do not start as software engineers, but as scientists, analysts, or researchers. R users can learn about software engineering concepts like automated testing, security, support, CI/CD, deployment, and maintenance, but ultimately, getting R into production requires a partnership of trust and learning between data/analytics and IT/dev teams. 
+
+- [Jacqueline and Heather Nolis](https://twitter.com/brookLYNevery1/status/1085952334176362496) used Shiny to pitch a machine learning model to senior leadership, and deployed that model to 70 million customers using TensorFlow, plumber APIs, and docker images. 
+- [Joe Cheng](https://twitter.com/brookLYNevery1/status/1085935621120712705) demonstrated massive improvements to Shiny performance by refactoring, plot caching, load testing with [shinyloadtest](**link), and profiling with [profvis](link**). 
+- [James Blair](https://twitter.com/brookLYNevery1/status/1086011758941224961) demonstrated how plumber's RESTful API's were easy to generate, verify, test, and use to build apps in other languages that relied on underlying R code. 
+- [Nic Crane](https://twitter.com/brookLYNevery1/status/1086010604303847424) shared tips for scaling Shiny for a diverse team with different needs, including medical project managers, lab techs, and data analysts. 
+- [Mark Sellors](https://twitter.com/brookLYNevery1/status/1085962548963360773) created a checklist of software engineering concepts that R users may not be familiar with, but that can make data analysts better partners to developers and web engineers. 
+
+# Leaders are everywhere. 
+
+Data science and analytics is a highly technical field that sometimes looks down on management as a "soft skill." However, data science leadership is essential to a successful project, team, or company. Several speakers discussed ways to be a leader from anywhere in a company, the importance of learning and practicing the skill of leadership with intention, the ways that data scientist managers can succeed, and the critical importance of seeking out, learning from, and fostering nourishing environments for diverse leaders who reflect the population.
+
+- [Dave Robinson](https://twitter.com/brookLYNevery1/status/1086380961124794368) discussed ways that anyone can contribute to the community through public work, no matter their skill level. Blogs, tweets, contributing to open source, talks, screencasts, and books are six ways that users can grow community, showcase their skills, learn, teach, and practice.
+- [Angela Bassa](https://twitter.com/brookLYNevery1/status/1086380961124794368) described her role as a leader as being focused on "setting up the midfield", so she can "get out of the way and let the team run the play." Leaders don't have to be the smartest, most important person in the room - their job is to create a psychologically safe environment that sets their team up to be their best, most motivated selves. 
+- [Tracy Teal](https://twitter.com/brookLYNevery1/status/1086399588431511552) explained that leadership must be intentionally learned and practiced (and teased a potential upcoming [Carpentries](https://carpentries.org/) leadership course!).
+
+# Data science is more than code. 
+
+With applications in telecommunications, law, surgery, physics, and history, it is clear that R and data analysis touch all aspects of our modern economy. The data we collect, the analyses we conduct, and the models we build don't just reflect the world we live in - they shape it. Users and analysts of data have a responsibility to be ethical consumers and creators of data products. We have to own our mistakes, to stay humble and listen to domain experts, and to foster communities and leaders that reflect the population. We have to be intentional about creating an inclusive environment that allows people from marginalized communities not only to attend, but to thrive and lead. The R and Rstudio communities have come a long way to become more inclusive, especially through initiatives like the RLadies movement, but we can't become complacent. 
+
+- [Angela Bassa](https://twitter.com/brookLYNevery1/status/1086399588431511552) reminded us that data is not ground truth. Data are artefacts of systems. 
+- [Garrett Grolemund](https://twitter.com/brookLYNevery1/status/1086311063489007617) discussed the reproducibility in crisis in science, and demonstrated ways that Rmarkdown could be used to be more transparent about data, methods, assumptions, and changes.
+- [Caitlin Hudon](https://twitter.com/brookLYNevery1/status/1086355615591645184) taught us to own responsibility for our failures by sharing her own, and demonstrated ways to increase transparency, honesty, learning, and trustworthiness in a data science team.  
+- [Karthik Ram](https://twitter.com/brookLYNevery1/status/1086399588431511552) explained that good data science teams are diverse data science teams, and shared the [manifesto for data science practices](https://datapractices.org/manifesto/).
+- My talk was focused on a specific story of the use of R in the ACLU's effort to track and reunify familes who had been separated at the border. This case demonstrates how the data we collect reflects what we value, and data scientists have a responsibility to question the source of the data we analyze. 
+
+--- 
+
+These themes span the gamut, from the techincal to the structural. Permeating through all of them, though - through all of the sessions at this conference - was a deep earnestness and openness that I find rare in the tech community. Every attendee I interacted with was tremendously gracious, every organizer focused on making this a safe and inclusive space. We have a long way to go to make sure tech and data science reflect the populations of the world, but RStudio and its community seem to be doing the important work to get there. 
