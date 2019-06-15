@@ -11,7 +11,7 @@ contentdir = "content"
 [params]
 	author = "Brooke Watson"
 	# description = "Data Scientist"
-	bio = "[ACLU](http://www.aclu.org) Data Scientist & America's Next Top Modeller. <br> [R Lady](http://www.rladiesnyc.org), [NASA Datanaut](https://open.nasa.gov/explore/datanauts/), and [Meme Sommelier](https://www.twitter.com/brooklynevery1). Trusted purveyor of laughs and graphs.<br> <br>"
+	bio = "[ACLU](http://www.aclu.org) Data Scientist & America's Next Top Modeler. <br> [R Lady](http://www.rladiesnyc.org), [NASA Datanaut](https://open.nasa.gov/explore/datanauts/), and [Meme Sommelier](https://www.twitter.com/brooklynevery1). Trusted purveyor of laughs and graphs.<br> <br>"
 
 	twitter = "brooklynevery1"
 

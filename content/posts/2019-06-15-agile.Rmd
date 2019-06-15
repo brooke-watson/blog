@@ -1,0 +1,306 @@
+---
+title: Agile Wyfe, Agile Lyfe
+author: Brooke Watson
+date: '2019-06-15'
+slug: agile
+output:
+  blogdown::html_page:
+    toc: true 
+categories: []
+tags:
+  - R
+  - kanban
+  - Github
+  - automation
+  - agile
+  - Twilio
+  - cron 
+  - httr
+description: "Learning software engineering principles by automating my wedding to-do list."
+code_folding: hide
+---
+
+# Intro 
+
+About a week ago, I came across [this blog post](https://blog.alicegoldfuss.com/automating-my-todo/) by Alice Goldfuss on how she uses kanban boards, Twilio, a short Python script, and an even shorter cron job to automate her personal to-do list. So much of this post resonated with me: the devotion to lists. The constant feeling of never being done with personal admin. The need to protect and celebrate weekends. The dread-laden, full-body sigh that accompanies the use of the phrase "agile my life." [^1] 
+
+
+This post is, in my estimation, the perfect tech how-to. Beyond its relatability, it's incredibly useful and easy to follow, even for folks who don't self-identify as software engineers. As a data scientist who slid sideways into tech via academic research, I couldn't tell you two years ago whether Cron, Kanban, and Twilio were tech terms or new Pokémon.[^2] I've used APIs to download data, but I was intimidated by `GET` and `POST`. I've spent _some_ time with Python, but more with [king snakes](https://www.instagram.com/p/BcIvs6GBMuu/). What better opportunity to trick myself into learning while continuing to avoid picking a wedding videographer? 
+
+The post above worked a treat. After a bit of fiddling and with a decent chunk of my trial Twilio balance wasted, I was able to set up a Cron job that will run `weekly_release.py` every Friday at 🎶 quittin' time 🎶 . I now had a great opportunity to see if translating it into R, a language I'm more familiar with, would help solidify the constructs and concepts in my mind. This allowed me to: 
+
+1. Learn by copying, 
+2. Make something actually useful to me, and
+3. Procrastinate with a shiny new project. 
+
+# Translating Python into R 
+
+To avoid **[copying this post verbatim](https://blog.alicegoldfuss.com/automating-my-todo/)**, I'll focus here on the differences between the Python code and my R code. If you want to cut to the chase, read Alice's blog first, and then copy her [script](https://gist.github.com/alicegoldfuss/d9a4a8cce0b45e3d37060a07aec616dc) in Python or [mine](**LINK!!**) in R. If you want the answers to the spot-the-differences game between the two, follow along. 
+
+## Setting environmental variables 
+
+The top of the script sets all the keys used later. It may not need to be said, but if you're setting them straight into the script, _don't_ host it on Github! 
+
+There are only two differences here: 
+
+1. The twilio package uses enviornmental variables, so you need to `Sys.setenv(TWILIO_SID = "XXX")` and `Sys.setenv(TWILIO_TOKEN = "XXX")`, rather than just setting `TWILIO_SID = "XXX"`. (I also changed all the `=`s to `<-`s, but it's up to you.) 
+
+2. httr takes a named list wrapped in an `add_headers()` call as headers, so python's `HEADERS = {'Accept': 'application/vnd.github.inertia-preview+json'}` becomes R's `HEADERS <- c(Accept = 'application/vnd.github.inertia-preview+json')`.
+
+Here's how it looks in python: 
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(eval = F)
+```
+
+
+```{python}
+HEADERS = {'Accept': 'application/vnd.github.inertia-preview+json'}
+GH_TOKEN = "XXX" # Your auth token from https://github.com/settings/tokens
+TW_SID = "XXX" # Your Account SID from twilio.com/console
+TW_TOKEN = "XXX" # Your Auth Token from twilio.com/console
+DONE = "XXX" # Done column id
+RELEASE = "XXX" # Release column id
+TW_PHONE = "+111111111" # Your Twilio account phone number
+PHONE = "+111111111" # Your phone number
+```
+
+and in R: 
+
+```{r}
+
+HEADERS <- c(Accept = 'application/vnd.github.inertia-preview+json') # named vector for add_headers
+GH_TOKEN <- "XXX" # Your auth token from https://github.com/settings/tokens
+Sys.setenv(TWILIO_SID = "XXX") # Your Account SID from twilio.com/console
+Sys.setenv(TWILIO_TOKEN = "XXX") # Your Auth Token from twilio.com/console
+DONE <- "XXX" # 7-digit Done column id
+RELEASE <- "XXX" # 7-digit Release column id
+TW_PHONE <- "+111111111" # Your Twilio account phone number
+PHONE <- "+111111111" # Your phone number
+
+```
+
+
+## JSON is a list
+
+Python uses the `requests` and `json` packages to `GET` the data from the Github API and format it into a nice jsonified list. The meat of that call is below (the `try` and `except` functions are for handling errors). 
+
+```{python, eval = F}
+import requests 
+import json
+# get the Done cards 
+url = "https://api.github.com/projects/columns/%s/cards?access_token=%s" % (DONE, GH_TOKEN)
+r = requests.get(url, headers=HEADERS)
+
+get_data = r.json()
+```
+
+In R, I'll do basically the same thing. After wrapping the string pasting in `sprintf` first to get the full API URL, I used httr's `GET` function to get the data. I also needed to wrap the additional HEADERS in httr's `add_headers()` function. Finally, to get the list of actual content, I called `content()` on the results of httr's `GET`.
+
+```{r}
+library(httr)
+
+# get the done cards 
+url <- sprintf("https://api.github.com/projects/columns/%s/cards?access_token=%s", DONE, GH_TOKEN)
+r <- httr::GET(url, add_headers(HEADERS))
+
+# pull out content from the done card "note" item 
+get_data <- content(r)
+
+```
+
+## for loops become purrr::map()
+
+For loops are quite common in most programming languages, including python. This chunk initializes an empty string, loops over the `get_data` object that includes the content of our request, and writes a new line every time it sees a `"note"` (beginning with an emoji check mark, of course, for validation).
+
+```{python, eval = F}
+release_string = ""
+
+for item in get_data:
+    string = "✅ " + item["note"] + '\n'
+    release_string += string
+```
+
+We could also use a for loop in R, but there's no need. Instead, I used `purrr::map_chr` and unnamed function calls to pull the pieces we want out of the `get_data` list object (using the base `$` to select just `note`s). We then concatenate that all together in a single string that starts with a checkmark and ends with a line break, using `str_c` and its `collapse` argument. You can copy and paste the emoji from above, or you can use the `emo` package. 
+
+```{r}
+library(tidyverse)
+
+release_string <- str_c(emo::ji("check"), map_chr(get_data, ~.x$note), collapse = "\n")
+
+```
+
+You can format this note however you want. I added a title that includes the date in bold, and a random emoji from a painstakingly hand-curated subset of ones I liked. 
+
+Github uses a plain Markdown to format text, so you can go bold/italicise things and include links if you like. (Twilio just uses plain text, though, so keep that in mind if you're really going for it.) In addition, if you'd prefer to use another platform to send your updates, like `gmailr`, you may need to use HTML formatting, as we'll see later. 
+
+Here's the added formatting I used:
+
+```{r}
+emojis <- c("dance", "dancer", "tada", "check", "cool", "cake", "trophy", "chart_with_upwards_trend", "boom", "crystal", "gem",  "mage", "angel", "money_mouth_face", "ghost", "crown", "key", "coaster", "halo", "gymnastics", "information_desk_person", "leaf", "cowboy", "lizard", "up", "mermaid", "technologist", "nerd", "party", "partying", "celebrate", "champagne", "Puck", "rainbow", "salon", "surfer", "trident", "sparkles", "rocket", "weight", "wings", "first") 
+e <- emo::ji(sample(emojis, 1)) 
+
+# add the date in bold as a title for the release card. again, optional. 
+rs <- str_c("**", as.character(Sys.Date()), e, "** \n\n", release_string, collapse = "")
+
+```
+
+## Posting Github cards 
+
+When `POST`ing a new card, I used the same syntax I used to `GET` it. httr's POST syntax is slightly different from the python `requests` library's, but through trial and error, I learned that: 
+
+1. Additional `headers` calls go in the config arugment. 
+2. Python's `json = ` gets broken out into two parts: 
+
+  a. A `body` argument, which should a named list. I pulled the information out of `note`, so that's where we're putting it back in. 
+  
+  b. An encoding argument: `encode = "json"`. 
+
+Here it is in python: 
+
+```{python}
+url = "https://api.github.com/projects/columns/%s/cards?access_token=%s" % (RELEASE, GH_TOKEN)
+r = requests.post(url, headers=HEADERS, json = {"note" : release_string})
+```
+
+And in R: 
+
+```{r}
+# post new Release card to github project using release_string
+url <- sprintf("https://api.github.com/projects/columns/%s/cards?access_token=%s", RELEASE, GH_TOKEN)
+POST(url, 
+     config = add_headers(HEADERS), 
+     body = list(note = rs), 
+     encode = "json") 
+
+```
+
+## Sending texts with twilio 
+
+Thanks to Sean Kross's [twilio](https://github.com/seankross/twilio) package, there's really no learning curve on sending texts. Once your credentials are set up, the differences between using this API in R or python are just your garden variety stylistic differences. 
+
+In python, that looks like this: 
+
+```{python}
+from twilio.rest import Client
+
+client = Client(TW_SID, TW_TOKEN)
+
+message = client.messages.create(
+    to=PHONE, 
+    from_=TW_PHONE,
+body="Your Weekly Release!🎉\n\n" + release_string)
+```
+
+and in R (adding the emoji we randomly selected above): 
+
+```{r}
+library(twilio)
+
+# # send text message with release_string 
+msg <- paste("Your Weekly Release!", e, "\n\n", release_string) 
+tw_send_message(to = PHONE, from = TW_PHONE, body = msg)
+
+```
+
+## Archiving Github cards 
+
+To wrap up, I again used httr + purrr to archive the done cards. Instead of `GET`ting or `POST`ing this time, I changed the `archived` status of each note with a `PATCH.` Here's what that looks like in python: 
+
+```{python, eval = F}
+
+for item in get_data:
+    card = item["id"]
+    url = "https://api.github.com/projects/columns/cards/%s?access_token=%s" % (card, GH_TOKEN)
+    try:
+        r = requests.patch(url, headers=HEADERS, json = {"archived" : True})
+    except requests.exceptions.RequestException as e: 
+      print(e)
+ 
+```
+
+And in R:
+
+```{r}
+# archive Done cards
+purrr::map(get_data, ~{
+    card <- .x$id
+    url <- sprintf("https://api.github.com/projects/columns/cards/%s?access_token=%s", card, GH_TOKEN)
+    PATCH(url, add_headers(HEADERS), body = list(archived = TRUE), encode = "json")
+})
+
+```
+
+## Setting a cron job 
+
+Cron was the most intimidating part of this flow for me. I'd heard of it often, but had never used it. As it turns out, it's a very straightforward magic and you can do anything you put your mind to, kids! Here are some details of my setup: 
+
+1. I find nano slightly easier to navigate than vim, so i got to my crontab editor with the following: 
+
+```{shell}
+EDITOR=nano crontab -e
+```
+
+2. Specifying `/usr/local/bin/Rscript` was essential - my script wouldn't run if i just `cd`'d into the folder and ran `&& Rscript R/scriptname.R`. You can run `which Rscript` in terminal to find out what your local path is. My final setup for a single job looks like this, which I just pasted and saved into the editor I opened with `crontab -e`: 
+
+```{shell}
+0 17 * * FRI cd /Users/bwatson/Documents/other-projects/weekly-release && /usr/local/bin/Rscript R/weekly-release.R
+```
+
+When you get back to the terminal, `crontab -l` will show you all the jobs currently set up.
+
+# Bonus: email your updates with gmailr. 
+
+Alice [notes](https://blog.alicegoldfuss.com/automating-my-todo/) in her post that text updates were a backup choice, given security concerns. I actually prefer them to email updates, especially in the "go have a weekend, nerd" use case, even if I'm set to run out of Twilio credits sooner than I'd like. 
+
+But some things work better in an email. My team at the ACLU uses weekly update emails to keep track of our work, and I thought this system could be adapted to that purpose. I also learned, in my first week of testing this system  with work updates, that Github projects won't let you write a card that is longer than 1024 characters. So email it is. 
+
+Luckily, the gmailr package in R makes it easy to send email from an authenticated account to *anyone*. I set up a burner gmail to get my OAuth keys, and followed the very thorough [setup instructions](https://github.com/r-lib/gmailr) included in the gmailr README to authenticate and allow API access.[^3] 
+
+The snippet below shows the final piece of my WORK work flow. It's ever so slightly more detailed than my personal updates, since I want to track not only what has been accomplished, but what is in progress. You could use the same `release_string` created above - just be sure to use html-flavor newline separators (`<br>`) instead of markdown-flavored ones (`\n`).
+
+`done` and `prog` in the script below are lists that are the result of `content()` - the direct equivalents to `get_data` above, but from two separate columns in my work kanban board. (I could go even further and create different boards for different projects and teams, but we're already in too deep as it is.) In this bit, I'm pasting all the done bits together in green, all the in-progress bits together in blue, and formatting a subject line with the dates of the current M-F week.  
+
+```{r}
+done_string <- str_c("- ", map_chr(done, ~.x$note), collapse = "<br>")
+
+prog_string <- str_c("- ", map_chr(prog, ~.x$note), collapse = "<br>")
+
+# format body with html 
+body <- glue::glue('<font color="green">{done_string}</font><br><br>
+                 <font color="blue">{prog_string}</font><br><br>')
+
+# add subject
+subj <- glue::glue("{str_remove(as.character(Sys.Date()-5), '2019-')} - {str_remove(as.character(Sys.Date()), '2019-')} End of Week Updates")
+
+```
+
+Once that's done, as long as my burner gmail is authenticated, I can send emails from it *to any account*, including to my encrypted work email, without jeopardizing the security of the latter. 
+
+```{r}
+library(gmailr)
+
+# create email 
+mime() %>%
+    subject(subj) %>%
+    to("hi@brooke.science") %>% 
+    from("brookes.burner.gmail@gmail.com") %>% # (it's not real, nice try hackers)
+    html_body(body) -> msg
+
+# send it 
+send_message(msg)
+```
+
+This, my personal, and my wedding-specific scripts can all live in harmony in my friendly neighborhood `crontab -l`. 
+
+```
+0 16 * * FRI cd /Users/bwatson/Documents/other-projects/weekly-release && /usr/local/bin/Rscript R/wedding-release.R
+0 17 * * FRI cd /Users/bwatson/Documents/other-projects/weekly-release && /usr/local/bin/Rscript R/weekly-release.R
+0 14 * * FRI cd /Users/bwatson/Documents/other-projects/weekly-release && /usr/local/bin/Rscript R/work-release.R
+```
+
+And that's it! I'm **embarrassed** by how much I like this system. I feel about the word "agile" the way most self-respecting people feel about the word "[synergy](https://www.youtube.com/watch?reload=9&v=aocZo3oeNxw)". But I like this setup. A lot. And I liked the process of setting it up - I know more about how information is transferred to and fro the internet, and I'm excited about the other kinds of things I can do, now that some of these concepts have been demystified. So despite the corny title, it's genuinely made my life a little easier, a little more relaxed, a little more rewarding. And isn't that what technology was always supposed to do forayb us?e I am so, so, so sorry about the title of this post. I am afriad there is nothing to be done. 
+
+[^2]: In my defense, there are like, 700 of them at this point. I'm a 151 originalist. Do not @ me. 
+
+[^3]: The gmailr/tidyverse privacy policy is available [here](https://www.tidyverse.org/google_privacy_policy), and Google's API terms are [here](https://developers.google.com/terms/). 

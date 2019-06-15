@@ -116,7 +116,7 @@ html, body {
 }
 
 body {
-    font: 16px/1 "Raleway", "Avenir", Helvetica, Arial, sans-serif;
+    font: 16px/1 "Avenir", Helvetica, Arial, sans-serif;
     color: #333;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -132,7 +132,10 @@ h1 {
 h2 {
     font: italic 19px/1.3em Georgia, serif;
     color: #8e8e8e;
+    font-weight: bold;
 }
+
+
 
 .profile #wrapper {
     padding: 60px 40px 0px;
@@ -194,6 +197,7 @@ nav.main-nav a.cta {
     color: #fff;
     margin-left: 12px;
 }
+
 @media (max-width: 700px) {
   nav.main-nav {
       padding: 20px 10px 0 0;
@@ -329,6 +333,7 @@ em, i {
 
 .post header {
     text-align: center;
+    font-weight: bold;
 }
 
 .post h1 {
@@ -336,6 +341,7 @@ em, i {
     margin-bottom: 20px;
     color: #222;
     font: 300 32px/1.4em "Raleway", "Avenir", Helvetica, Arial, sans-serif;
+    font-weight: bold;
 }
 
 .post h2 {
@@ -343,6 +349,7 @@ em, i {
     margin-bottom: 10px;
     font: 300 24px/1.5 "Raleway", "Avenir", Helvetica, Arial, sans-serif;
     color: #111;
+    font-weight: bold;
 }
 
 .post h2.headline {
@@ -366,13 +373,14 @@ em, i {
 }
 
 #post-list h2 {
-    font: normal 17px/1.5em "Raleway", "Avenir", Helvetica, Arial, sans-serif;
+    font: normal 17px/1.5em "Avenir", Helvetica, Arial, sans-serif;
     color: #aaa;
     margin-top: 2px;
 }
 
 h3, h4, h5 {
-    color: #333;
+    color: #3e72ad;
+    font-weight: bold;
 }
 
 h3 {
