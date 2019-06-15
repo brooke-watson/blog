@@ -35,7 +35,7 @@ The post above worked a treat. After a bit of fiddling and with a decent chunk o
 
 # Translating Python into R 
 
-To avoid **[copying this post verbatim](https://blog.alicegoldfuss.com/automating-my-todo/)**, I'll focus here on the differences between the Python code and my R code. If you want to cut to the chase, read Alice's blog first, and then copy her [script](https://gist.github.com/alicegoldfuss/d9a4a8cce0b45e3d37060a07aec616dc) in Python or [mine](**LINK!!**) in R. If you want the answers to the spot-the-differences game between the two, follow along. 
+To avoid **[copying this post verbatim](https://blog.alicegoldfuss.com/automating-my-todo/)**, I'll focus here on the differences between the Python code and my R code. If you want to cut to the chase, read Alice's blog first, and then copy her [script](https://gist.github.com/alicegoldfuss/d9a4a8cce0b45e3d37060a07aec616dc) in Python or [mine](https://gist.github.com/brooke-watson/1516805d537e8da3a134cc6ef7c654dc/revisions) in R. If you want the answers to the spot-the-differences game between the two, follow along. 
 
 ## Setting environmental variables 
 
@@ -299,7 +299,13 @@ This, my personal, and my wedding-specific scripts can all live in harmony in my
 0 14 * * FRI cd /Users/bwatson/Documents/other-projects/weekly-release && /usr/local/bin/Rscript R/work-release.R
 ```
 
-And that's it! I'm **embarrassed** by how much I like this system. I feel about the word "agile" the way most self-respecting people feel about the word "[synergy](https://www.youtube.com/watch?reload=9&v=aocZo3oeNxw)". But I like this setup. A lot. And I liked the process of setting it up - I know more about how information is transferred to and fro the internet, and I'm excited about the other kinds of things I can do, now that some of these concepts have been demystified. So despite the corny title, it's genuinely made my life a little easier, a little more relaxed, a little more rewarding. And isn't that what technology was always supposed to do forayb us?e I am so, so, so sorry about the title of this post. I am afriad there is nothing to be done. 
+And that's it! I'm **embarrassed** by how much I like this system. I feel about the word "agile" the way most self-respecting people feel about the word "[synergy](https://www.youtube.com/watch?reload=9&v=aocZo3oeNxw)". But I like this setup. A lot. And I liked the process of setting it up - I know more about how information is transferred to and fro the internet, and I'm excited about the other kinds of things I can do, now that some of these concepts have been demystified. So despite the corny title, it's genuinely made my life a little easier, a little more relaxed, a little more rewarding. And isn't that what technology was always supposed to do for us? 
+
+
+
+
+
+[^1]: I am so, so, so sorry about the title of this post. I am afriad there is nothing to be done. 
 
 [^2]: In my defense, there are like, 700 of them at this point. I'm a 151 originalist. Do not @ me. 
 
