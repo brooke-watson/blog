@@ -1,7 +1,7 @@
 # Site settings
 baseurl = "https://blog.brooke.science/"
 languageCode = "en"
-title = "Brooke Watson"
+title = "Brooke Watson Madubuonwu"
 theme = "hugo-theme-cactus-plus"
 googleAnalytics = "UA-47082548-2"
 # Set the value to true if your site include CJK (Chinese, Japanese, and Korean languages) characters
@@ -9,7 +9,7 @@ hasCJKLanguage = false
 contentdir = "content"
 
 [params]
-	author = "Brooke Watson"
+	author = "Brooke Watson Madubuonwu"
 	# description = "Data Scientist"
 	bio = "[ACLU](http://www.aclu.org) Data Scientist & America's Next Top Modeler. <br> [R Lady](http://www.rladiesnyc.org), [NASA Datanaut](https://open.nasa.gov/explore/datanauts/), and [Meme Sommelier](https://www.twitter.com/brooklynevery1). Trusted purveyor of laughs and graphs.<br> <br>"
 
