@@ -45,7 +45,8 @@ contentdir = "content"
 	# Navigation links
 	home = ""
 	about = ""
-	archive = ""
+	archive = "Posts"
+	# work = ""
 	# subscribe = ""
 
 	olderPosts = ""
