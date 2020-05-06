@@ -24,7 +24,7 @@ A selection of blogs and articles written in partnership with ACLU attorneys and
 
 + Ezekiel Edwards, Brooke Madubuonwu, Emily Greytak, et al.  _A Tale of Two Countries: Racially Targeted Arrests in the Era of Marijuana Reform._ American Civil Liberties Union, April 2020. Available at https://www.aclu.org/report/tale-two-countries-racially-targeted-arrests-era-marijuana-reform. 
 
-+ Eric Lofgren, Kristian Lum, Aaron Horowitz, Brooke Madubuowu, Nina Fefferman. _The Epidemiological Implications of Incarceration Dynamics in Jails for Community, Corrections Officer, and Incarcerated Population Risks from COVID-19_. April 2020. medRxiv 2020.04.08.20058842; doi: https://doi.org/10.1101/2020.04.08.20058842 [pre-print.] 
++ Eric Lofgren, Kristian Lum, Aaron Horowitz, Brooke Madubuonwu, Nina Fefferman. _The Epidemiological Implications of Incarceration Dynamics in Jails for Community, Corrections Officer, and Incarcerated Population Risks from COVID-19_. April 2020. medRxiv 2020.04.08.20058842; doi: https://doi.org/10.1101/2020.04.08.20058842 [pre-print.](https://www.medrxiv.org/content/10.1101/2020.04.08.20058842v2)
 
 + Dennis Carroll, Brooke Watson, Eri Togami, Peter Daszak, Jonna Mazet et al. "Building a Global Atlas of Zoonotic Viruses." _Bulletin of the World Health Organization_. April 2018. https://www.ncbi.nlm.nih.gov/pubmed/29695886 
 
